@@ -2,6 +2,8 @@ double getFrequency(float root, int halfsteps) {
   // add 1 so we can count with 0;
   halfsteps += 1;
   return root * pow(halfsteps, 3 / 12.000);
+
+  // float freq = 440.0 * powf(2.0, (float)(note - 69) * 0.08333333);
 }
 
 void playBassNote(uint32_t tick) {
@@ -13,17 +15,26 @@ void playBassNote(uint32_t tick) {
 
     Serial.print("root: ");
     Serial.println(BASS_ROOT);
+
+    Serial.print("glide: ");
+    Serial.println(step.glide);
+
+    Serial.print("rest: ");
+    Serial.println(step.rest);
   }
 
   double frequency = getFrequency(BASS_ROOT, step.note);
 
   if (!step.glide) {
-    envelope1.noteOff();
+    bassEnv.noteOff();
   }
 
-  if (!step.rest) {
-    envelope1.noteOn();
+  if (!step.rest && !step.glide) {
+    bassEnv.noteOn();
+  } else if (!step.rest && !bassEnv.isActive()) {
+    bassEnv.noteOn();
   }
+
   bassOsc1.frequency(frequency);
   bassOsc2.frequency(frequency);
   // }
@@ -36,9 +47,21 @@ void playLeadNote() {
 }
 
 void setupBass() {
+  updateSynthValuesByConfig();
+
   bassOsc1.begin(0.3, 440, WAVEFORM_SINE);
   bassOsc2.begin(0.3, 440, WAVEFORM_SAWTOOTH);
+
+  bassEnv.attack(configData[row_bass_attack][current_style]);  
+  bassEnv.decay(configData[row_bass_decay][current_style]);  
+  bassEnv.sustain(configData[row_bass_sustain][current_style]); 
+  bassEnv.release(configData[row_bass_release][current_style]);
+  bassEnv.hold(configData[row_bass_hold][current_style]);
+
+  bassFilter.frequency(configData[row_filter_frequency][current_style]);
+  bassFilter.resonance(configData[row_filter_resonance][current_style]);
 }
+
 
 void setupPad() {
   // padOsc1.begin(0.3, 440, WAVEFORM_SINE);
@@ -49,55 +72,12 @@ void setupLead() {
 }
 
 void printAllSynthValues() {
-  Serial.println("bass_osc_1_gain, ");
-  Serial.print(bass_osc_1_gain);
-  Serial.println("bass_osc_2_gain, ");
-  Serial.print(bass_osc_2_gain);
-  Serial.println("pad_osc_1_gain, ");
-  Serial.print(pad_osc_1_gain);
-  Serial.println("pad_osc_2_gain, ");
-  Serial.print(pad_osc_2_gain);
-  Serial.println("bass_env_attack, ");
-  Serial.print(bass_env_attack);
-  Serial.println("bass_env_decay, ");
-  Serial.print(bass_env_decay);
-  Serial.println("bass_env_sustain, ");
-  Serial.print(bass_env_sustain);
-  Serial.println("bass_env_release, ");
-  Serial.print(bass_env_release);
-  Serial.println("pad_env_attack, ");
-  Serial.print(pad_env_attack);
-  Serial.println("pad_env_decay, ");
-  Serial.print(pad_env_decay);
-  Serial.println("pad_env_sustain, ");
-  Serial.print(pad_env_sustain);
-  Serial.println("pad_env_release, ");
-  Serial.print(pad_env_release);
-  Serial.println("tempo, ");
-  Serial.print(tempo);
 }
 
-void updateSynthValues() {
+void updateSynthValuesByConfig() {
   Serial.println("should update all synth values based on default values now");
-  Serial.print(bass_osc_1_gain);
-  // double bass_osc_1_gain;
-  // double bass_osc_2_gain;
-  // double pad_osc_1_gain;
-  // double pad_osc_2_gain;
-  // double bass_env_attack;
-  // double bass_env_decay;
-  // double bass_env_sustain;
-  // double bass_env_release;
-  // double pad_env_attack;
-  // double pad_env_decay;
-  // double pad_env_sustain;
-  // double pad_env_release;
-  // double tempo;
-  bassOsc1.begin(0.1, 440, WAVEFORM_SINE);
-  bassOsc2.begin(0.1, 440, WAVEFORM_SAWTOOTH);
 
-  envelope1.attack(9.2);    // 10 - 11880 ms
-  envelope1.decay(31.4);    // 10 - 11880 ms
-  envelope1.sustain(0.6);   // 0 - 1
-  envelope1.release(84.5);  // 10 - 11880 ms
+
+  // lfo.amplitude(configData[row_lfo_amp][current_style]);
+  // lfo.frequency(configData[row_lfo_freq][current_style]);
 }

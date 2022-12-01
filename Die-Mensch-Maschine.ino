@@ -1,4 +1,5 @@
 #include <uClock.h>
+#include <MIDI.h>
 #include <Audio.h>
 #include <Wire.h>
 #include <SPI.h>
@@ -6,19 +7,22 @@
 #include <SerialFlash.h>
 
 // GUItool: begin automatically generated code
-AudioSynthWaveform bassOsc1;       //xy=145,528
-AudioSynthWaveform bassOsc2;       //xy=152,582
-AudioEffectMultiply multiply1;     //xy=329,542
-AudioEffectEnvelope envelope1;     //xy=505,544
-AudioFilterStateVariable filter1;  //xy=668,554
-AudioAmplifier amp1;               //xy=830,555
-AudioOutputI2SQuad i2s_quad1;      //xy=1015,699
-AudioConnection patchCord1(bassOsc1, 0, multiply1, 0);
-AudioConnection patchCord2(bassOsc2, 0, multiply1, 1);
-AudioConnection patchCord3(multiply1, envelope1);
-AudioConnection patchCord4(envelope1, 0, filter1, 0);
-AudioConnection patchCord5(filter1, 0, amp1, 0);
-AudioConnection patchCord6(amp1, 0, i2s_quad1, 0);
+AudioSynthWaveform       bassOsc1;      //xy=145,528
+AudioSynthWaveform       bassOsc2;      //xy=152,582
+AudioSynthWaveformSine   sine2;          //xy=176,758
+AudioEffectMultiply      multiply1;      //xy=329,542
+AudioEffectEnvelope      bassEnv;      //xy=505,544
+AudioFilterStateVariable bassFilter;        //xy=668,554
+AudioAmplifier           amp1;           //xy=830,555
+AudioOutputI2SQuad       i2s_quad1;      //xy=1015,699
+AudioConnection          patchCord1(bassOsc1, 0, multiply1, 0);
+AudioConnection          patchCord2(bassOsc2, 0, multiply1, 1);
+AudioConnection          patchCord3(sine2, 0, bassFilter, 1);
+AudioConnection          patchCord4(multiply1, bassEnv);
+AudioConnection          patchCord5(bassEnv, 0, bassFilter, 0);
+AudioConnection          patchCord6(bassFilter, 0, amp1, 0);
+AudioConnection          patchCord7(amp1, 0, i2s_quad1, 2);
+AudioConnection          patchCord8(amp1, 0, i2s_quad1, 0);
 // GUItool: end automatically generated code
 
 
@@ -61,6 +65,15 @@ int BASS_ROOT = BASE_A / 2 / 2;
 
 #define DEBUG_PRINT_STEP false
 
+// Place these from the spreadsheet https://docs.google.com/spreadsheets/d/1liqxYe1Ht9p84bwuuuADFOiAZGA8TLUPVn47AF2BULI/edit#gid=1079230721
+double configData[15][6] = { { 50,200,120,122,124,126 },{ 0,0,0,0,0,0 },{ 0,0,0,0,0,0 },{ 2,500,2,4,6,8 },{ 0,1000,80,80,80,80 },{ 0,1,0,0,0,0 },{ 1,500,1,1,1,1 },{ 0,500,1,1,1,1 },{ 0,1,1,1,1,1 },{ 1,3,1,1,1,1 },{ 0.4,2,1,0.4,0.4,0.4 },{ 20,40,30,30,30,30 },{ 0.7,5,4,4,4,4 },{ 0,10000,3000,3000,3000,3000 },{ 2.5,3,2.5,2.5,2.5,2.5 } };
+int col_min = 0;
+int col_max = 1;
+int current_style = 2;
+
+int singleSongData[56][5] = { { 1, 4, 0, 24 }, { 1, 4, 0, 24 }, { 1, 4, 0, 24 }, { 1, 5, 0, 24 }, { 1, 5, 19, 24 }, { 1, 5, 20, 24 }, { 1, 5, 20, 24 }, { 1, 5, 21, 24 }, { 1, 6, 22, 24 }, { 1, 6, 22, 24 }, { 1, 6, 22, 24 }, { 1, 6, 22, 24 }, { 1, 6, 22, 24 }, { 1, 6, 22, 24 }, { 1, 6, 22, 24 }, { 1, 6, 22, 25 }, { 1, 7, 22, 26 }, { 1, 7, 22, 26 }, { 1, 7, 22, 26 }, { 1, 7, 22, 26 }, { 1, 7, 22, 26 }, { 1, 7, 22, 26 }, { 1, 7, 22, 26 }, { 12, 8, 26 }, { 1, 7, 22, 26 }, { 1, 7, 22, 26 }, { 1, 7, 22, 26 }, { 1, 7, 22, 26 }, { 1, 7, 22, 26 }, { 1, 7, 22, 26 }, { 1, 7, 22, 26 }, { 1, 7, 22, 26 }, { 1, 7, 22, 26 }, { 1, 7, 22, 26 }, { 1, 7, 22, 26 }, { 14, 4 }, { 14, 4 }, { 14, 4 }, { 14, 4 }, { 1, 9, 23, 27 }, { 1, 9, 23, 27 }, { 1, 9, 23, 27 }, { 1, 9, 23, 27 }, { 1, 9, 23, 27 }, { 1, 9, 23, 27 }, { 1, 9, 23, 27 } };
+// [bar, instrument]
+
 
 // [allbarlength][allinstrumentlength]
 // https://docs.google.com/spreadsheets/d/1liqxYe1Ht9p84bwuuuADFOiAZGA8TLUPVn47AF2BULI/edit#gid=169379860
@@ -84,20 +97,24 @@ int _current_pad_seq_type;
 int _current_drum_seq_type;
 int _current_lead_seq_type;
 
-double bass_osc_1_gain;
-double bass_osc_2_gain;
-double pad_osc_1_gain;
-double pad_osc_2_gain;
-double bass_env_attack;
-double bass_env_decay;
-double bass_env_sustain;
-double bass_env_release;
-double pad_env_attack;
-double pad_env_decay;
-double pad_env_sustain;
-double pad_env_release;
-double tempo;
+// configData references
+int row_tempo = 0;
+int row_sine_1_freq = 1;
+int row_sine_1_amp = 2;
+int row_bass_attack = 3;
+int row_bass_decay = 4;
+int row_bass_sustain = 5;
+int row_bass_release = 6;
+int row_bass_hold = 7;
+int row_lfo_amp = 8;
+int row_lfo_freq = 9;
+int row_sine_fm_amp = 10;
+int row_sine_fm_freq = 11;
+int row_filter_resonance = 12;
+int row_filter_frequency = 13;
+int row_filter_octavecontrol = 14;
 
+MIDI_CREATE_INSTANCE(HardwareSerial, Serial1, MIDI);
 void setup() {
   Serial.begin(9600);
 
@@ -111,7 +128,7 @@ void setup() {
   uClock.setClock16PPQNOutput(onStep16);
   uClock.setTempo(120);
   Serial.println("Setup: Should call makeSoundDesign after the digit input, but do it rightaway now");
-  makeSoundDesign(1);
+  makeSoundDesign(current_style);
   sgtl5000_1.enable();
   sgtl5000_1.volume(.7);
   sgtl5000_2.enable();
@@ -120,22 +137,24 @@ void setup() {
   sgtl5000_2.setAddress(HIGH);
 
   setupBass();
-  setupPad();
-  setupLead();
-  setupDrum();
+  // setupPad();
+  // setupLead();
+  // setupDrum();
 
-  Serial.println("Setup: Should setup SD");
-  Serial.println("Setup: Should if SD is ready, start uClock");
   uClock.start();
-  Serial.println("Setup: Should show LED ready animations");
-  Serial.println("Setup: Should Connect all buttons and Pots");
   // Init listening for the keypad
-  setupMIDI();
+  MIDI.begin();
+  
+  sendAllMidiValues();
+  
+  MIDI.setHandleControlChange(onControlChange);
+  usbMIDI.setHandleControlChange(onControlChange);
 }
 
 void loop() {
   // init the sequencer when everything is ready
-  loopMIDI();
+  usbMIDI.read();
+  MIDI.read();
 
   // get any pot changes
   // get any button state changes
