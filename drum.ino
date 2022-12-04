@@ -13,13 +13,12 @@ void playDrumStep(int current_step) {
   }
 
   SEQUENCER_DRUM_DATA step = all_sequences_drum[_current_drum_seq_type][current_step];
-  sine1.amplitude(1.0);
-
 
   // playSdWav1.play("bd01.wav");
-  if (step.kick) { sound0.play(AudioSampleKick); };
-  if (step.snare) { sound1.play(AudioSampleSnare); };
-  if (step.hh) { sound2.play(AudioSampleHihat); };
-  if (step.clap) { sound3.play(AudioSampleTomtom); };
+  if (step.kick) { soundKick.play(AudioSampleKick); };
+  if (step.snare) { soundSnare.play(AudioSampleSnare); };
+  if (step.hh) { soundHH.play(AudioSampleHihat); };
+  
+  if (step.clap) { soundClap.play(AudioSampleTomtom); };
   // if (step.clap) { playSdWav1.play("cp01.wav"); };
 }

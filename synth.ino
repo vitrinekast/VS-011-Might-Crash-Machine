@@ -12,6 +12,7 @@ void playBassNote(uint32_t tick) {
 
   double frequency = getFrequency(BASS_ROOT + step.note);
 
+  bassFilterEnv.noteOn();
   if (!step.glide) {
     bassEnv.noteOff();
   }
@@ -26,6 +27,7 @@ void playBassNote(uint32_t tick) {
   bassOsc2.frequency(frequency);
   // }
 };
+
 void printStepInfo(int name, SEQUENCER_STEP_DATA step, int cur) {
   if (DEBUG_PRINT_STEP) {
     Serial.println("step: ");
@@ -42,6 +44,7 @@ void printStepInfo(int name, SEQUENCER_STEP_DATA step, int cur) {
     Serial.println(step.rest);
   }
 }
+
 void playPadNote(uint32_t tick) {
   SEQUENCER_STEP_DATA step = all_sequences[_current_pad_seq_type][tick % MAX_STEP];
 
@@ -57,8 +60,6 @@ void playPadNote(uint32_t tick) {
   if (!step.glide) {
     padEnv.noteOff();
   }
-
-  // padFilterEnv.noteOn();
 
   if (!step.rest && !step.glide) {
     padEnv.noteOn();
@@ -84,13 +85,25 @@ void playLeadNote(uint32_t tick) {
 void setupBass() {
   updateSynthValuesByConfig();
 
-  bassOsc1.begin(0.3, BASS_ROOT, WAVEFORM_SINE);
-  bassOsc2.begin(0.3, BASS_ROOT, WAVEFORM_SAWTOOTH);
+  bassEnv.releaseNoteOn(40);
+  bassFilterEnv.releaseNoteOn(4);
+
+  dc1.amplitude(1);
+
+  bassOsc1.begin(1, BASS_ROOT, WAVEFORM_SAWTOOTH);
+  // bassOsc2.begin(0.3, BASS_ROOT, WAVEFORM_SAWTOOTH);
 
   bassEnv.attack(configData[row_bass_attack][current_style]);
   bassEnv.decay(configData[row_bass_decay][current_style]);
   bassEnv.sustain(configData[row_bass_sustain][current_style]);
   bassEnv.release(configData[row_bass_release][current_style]);
+
+  bassFilterEnv.attack(configData[row_bass_attack][current_style]/2);
+  bassFilterEnv.decay(configData[row_bass_decay][current_style]/2);
+  bassFilterEnv.sustain(configData[row_bass_sustain][current_style]/2);
+  bassFilterEnv.release(configData[row_bass_release][current_style]/2);
+
+  
   // bassEnv.hold(configData[row_bass_hold][current_style]);
 
   bassFilter.frequency(configData[row_bass_filter_frequency][current_style]);
@@ -109,22 +122,20 @@ void setupPad() {
   padEnv.sustain(configData[row_pad_sustain][current_style]);
   padEnv.release(configData[row_pad_release][current_style]);
 
-  padNoiseMix.gain(0, .5);
-  padNoiseMix.gain(1, .2);
-
   padFilter.frequency(configData[row_pad_filter_frequency][current_style]);
   padFilter.resonance(configData[row_pad_filter_resonance][current_style]);
 
-  padFilterLFO.amplitude(1);
-  padFilterLFO.frequency(1);
-  sine3.frequency(2);
-  sine3.amplitude(1);
-  combine1.setCombineMode(AudioEffectDigitalCombine::XOR);
+  padLFO1.amplitude(1);
+  padLFO1.frequency(1);
+  padLFO2.frequency(2);
+  padLFO2.amplitude(1);
 
-  padNoise.amplitude(.3);
-  mixer1.gain(0, .5);
-  mixer1.gain(1, .5);
-  mixer1.gain(2, .5);
+  padCombine.setCombineMode(AudioEffectDigitalCombine::XOR);
+
+  padOscMix.gain(0, .5);
+  padOscMix.gain(1, .5);
+  padOscMix.gain(2, .5);
+  padOscMix.gain(3, .5);
 }
 
 void setupLead() {

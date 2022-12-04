@@ -56,9 +56,9 @@ void makeSequences(int bar) {
 }
 void setRandomRythmData(int type) {
   for (int i = 0; i < MAX_STEP; i++) {
-    all_sequences[type][i].rest = random(0, 100) < 20;
+    all_sequences[type][i].rest = random(0, 100) < 0;
     all_sequences[type][i].accent = false;
-    all_sequences[type][i].glide = random(0, 100) < 20;
+    all_sequences[type][i].glide = random(0, 100) < 0;
     all_sequences[type][i].note = 0;
   };
   all_sequences[type][0].rest = false;

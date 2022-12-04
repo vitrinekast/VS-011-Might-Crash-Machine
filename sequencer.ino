@@ -1,6 +1,6 @@
 void onStep16(uint32_t tick) {
   //Needed to make the 8step sequence:
-  // playLeadNote(tick);
+  playLeadNote(tick);
   if (tick % 2 == 0) {
     return false;
   }

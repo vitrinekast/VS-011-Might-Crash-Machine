@@ -1,3 +1,7 @@
+float mapfloat(long x, long in_min, long in_max, long out_min, long out_max) {
+  return (float)(x - in_min) * (out_max - out_min) / (float)(in_max - in_min) + out_min;
+}
+
 void myProgramChange(byte channel, byte program) {
   Serial.println("MIDI: got a program change: ");
   Serial.print("channel: ");
@@ -18,57 +22,89 @@ void myControlChange(byte channel, byte control, byte value) {
   // Make this smarter and faster!;
 
 
-  if (control == 0) {
-    double min = configData[row_pad_filter_resonance][col_min];
-    double max = configData[row_pad_filter_resonance][col_max];
-    configData[row_pad_filter_resonance][current_style] = map(value, 0, 127, min, max);
-    padFilter.resonance(configData[row_pad_filter_resonance][current_style]);
+  // if (control == 0) {
+  //   double min = configData[row_pad_filter_resonance][COL_MIN];
+  //   double max = configData[row_pad_filter_resonance][COL_MAX];
+  //   configData[row_pad_filter_resonance][current_style] = map(value, 0, 127, min, max);
+  //   padFilter.resonance(configData[row_pad_filter_resonance][current_style]);
 
-  } else if (control == 1) {
-    double min = configData[row_pad_filter_frequency][col_min];
-    double max = configData[row_pad_filter_frequency][col_max];
+  // } else if (control == 1) {
+  //   double min = configData[row_pad_filter_frequency][COL_MIN];
+  //   double max = configData[row_pad_filter_frequency][COL_MAX];
 
-    configData[row_pad_filter_frequency][current_style] = map(value, 0, 127, min, max);
-    padFilter.frequency(configData[row_pad_filter_frequency][current_style]);
-  } else if (control == 2) {
-    double min = configData[row_pad_attack][col_min];
-    double max = configData[row_pad_attack][col_max];
+  //   configData[row_pad_filter_frequency][current_style] = map(value, 0, 127, min, max);
+  //   padFilter.frequency(configData[row_pad_filter_frequency][current_style]);
+  // } else if (control == 2) {
+  //   double min = configData[row_pad_attack][COL_MIN];
+  //   double max = configData[row_pad_attack][COL_MAX];
 
-    configData[row_pad_attack][current_style] = map(value, 0, 127, min, max);
-    Serial.println("attack(configData[row_pad_attack][current_style]");
-    Serial.print(configData[row_pad_attack][current_style]);
-    padEnv.attack(configData[row_pad_attack][current_style]);
-  } else if (control == 3) {
-    // double min = configData[row_pad_decay][col_min];
-    // double max = configData[row_pad_decay][col_max];
+  //   configData[row_pad_attack][current_style] = map(value, 0, 127, min, max);
+  //   Serial.println("attack(configData[row_pad_attack][current_style]");
+  //   Serial.print(configData[row_pad_attack][current_style]);
+  //   padEnv.attack(configData[row_pad_attack][current_style]);
+  // } else if (control == 3) {
+  //   // double min = configData[row_pad_decay][COL_MIN];
+  //   // double max = configData[row_pad_decay][COL_MAX];
 
-    // configData[row_pad_decay][current_style] = map(value, 0, 127, min, max);
-    // Serial.println("decay(configData[row_pad_decay][current_style]");
-    // Serial.print(configData[row_pad_decay][current_style]);
-    // padEnv.decay(configData[row_pad_decay][current_style]);
-    Serial.print("change sine1");
-    padFilterLFO.frequency(map(value, 0, 127, 0, 50));
-  } else if (control == 4) {
-    Serial.print("change sine2");
-    
-  } else if (control == 5) {
-    int val = map(value, 0, 127, 0, 5000);
-    Serial.println(val);
-    padEnv.attack(val);
-  } else if (control == 6) {
-    int val = map(value, 0, 127, 0, 5000);
-    Serial.println(val);
-    padEnv.decay(val);
-  } else if (control == 7) {
-    int val = map(value, 0, 127, 0, 2);
-    Serial.println(val);
-    padEnv.sustain(val);
-  } else if (control == 8) {
-    int val = map(value, 0, 127, 0, 5000);
-    Serial.println(val);
-    padEnv.release(val);
+  //   // configData[row_pad_decay][current_style] = map(value, 0, 127, min, max);
+  //   // Serial.println("decay(configData[row_pad_decay][current_style]");
+  //   // Serial.print(configData[row_pad_decay][current_style]);
+  //   // padEnv.decay(configData[row_pad_decay][current_style]);
+  //   Serial.print("change sine1");
+  //   padLFO1.frequency(map(value, 0, 127, 0, 50));
+  // } else if (control == 4) {
+  //   Serial.print("change sine2");
+
+  // } else if (control == 5) {
+  //   int val = map(value, 0, 127, 0, 5000);
+  //   Serial.println(val);
+  //   padEnv.attack(val);
+  // } else if (control == 6) {
+  //   int val = map(value, 0, 127, 0, 5000);
+  //   Serial.println(val);
+  //   padEnv.decay(val);
+  // } else if (control == 7) {
+  //   int val = map(value, 0, 127, 0, 2);
+  //   Serial.println(val);
+  //   padEnv.sustain(val);
+  // } else if (control == 8) {
+  //   int val = map(value, 0, 127, 0, 5000);
+  //   Serial.println(val);
+  //   padEnv.release(val);
+  // }
+  if (control == 10) {
+    float val = mapfloat(value, 0, 127, 0, 5000);
+    bassEnv.attack(val);
+  } else if (control == 11) {
+    float val = mapfloat(value, 0, 127, 0, 5000);
+    bassEnv.decay(val);
+  } else if (control == 12) {
+    float val = mapfloat(value, 0, 127, 0, 5000);
+    bassEnv.sustain(val);
+  } else if (control == 13) {
+    float val = mapfloat(value, 0, 127, 0, 5000);
+    bassEnv.release(val);
+  } else if (control == 14) {
+    float val = mapfloat(value, 0, 127, 0, 10000);
+    bassFilter.frequency(val);
+  } else if (control == 15) {
+    float val = mapfloat(value, 0, 127, 0.7, 5);
+    bassFilter.resonance(val);
   }
 
+  if (control == 30) {
+    float val = mapfloat(value, 0, 127, 0, 1);
+    mainMixer.gain(0, val);
+  } else if (control == 31) {
+    float val = mapfloat(value, 0, 127, 0, 1);
+    mainMixer.gain(1, val);
+  } else if (control == 32) {
+    float val = mapfloat(value, 0, 127, 0, 1);
+    mainMixer.gain(2, val);
+  } else if (control == 33) {
+    float val = mapfloat(value, 0, 127, 0, 1);
+    mainMixer.gain(3, val);
+  }
 
   if (control == 99) {
     Serial.println("");
@@ -148,8 +184,8 @@ void myControlChange(byte channel, byte control, byte value) {
 
 void sendAllMidiValues() {
   for (unsigned i = 0; i < 30; i++) {
-    double min = configData[i][col_min];
-    double max = configData[i][col_max];
+    double min = configData[i][COL_MIN];
+    double max = configData[i][COL_MAX];
     double val = configData[i][current_style];
 
     int midiVal = map(val, min, max, 0, 127);
