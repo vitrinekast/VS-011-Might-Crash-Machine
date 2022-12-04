@@ -3,8 +3,8 @@
 void makeSequences(int bar) {
   // calculate the sequences for each instrument based on the current bar
   // also, if effect values need to change over time, set them here
-  Serial.print("MakeSequences: generate a needed sequence for bar ");
-  Serial.println(bar);
+  // Serial.print("MakeSequences: generate a needed sequence for bar ");
+  // Serial.println(bar);
 
   if (!digitIsParsed) {
     parseDigit();
@@ -14,34 +14,54 @@ void makeSequences(int bar) {
   }
 
   _current_bass_seq_type = singleSongData[bar][SYNTH_BASS];
-  _current_pad_seq_type = singleSongData[bar][SYNTH_PAD];
   _current_drum_seq_type = singleSongData[bar][SYNTH_DRUM];
   _current_lead_seq_type = singleSongData[bar][SYNTH_LEAD];
+  _current_pad_seq_type = singleSongData[bar][SYNTH_PAD];
+
+  Serial.print("MakeSequences: _current_pad_seq_type ");
+  Serial.println(_current_pad_seq_type);
 
   // For each instrument, check if the sequence has been generated;
   if (!generated_sequences[_current_bass_seq_type]) {
     setSequenceByType(SYNTH_BASS, _current_bass_seq_type);
     generated_sequences[_current_bass_seq_type] = true;
   } else {
-    Serial.println("i've already generated this sequence");
+    Serial.println("i've already generated this bass sequence");
   }
-  // if (!generated_sequences[_current_pad_seq_type]) {
-  //   setSequenceByType(SYNTH_PAD, _current_pad_seq_type);
-  // }
-  // if (!generated_sequences[_current_drum_seq_type]) {
-  //   setDrumSequence(_current_drum_seq_type);
-  // }
-  // if (!generated_sequences[_current_lead_seq_type]) {
-  //   setSequenceByType(SYNTH_LEAD, _current_lead_seq_type);
-  // }
+
+
+  if (!generated_sequences[_current_pad_seq_type]) {
+    setSequenceByType(SYNTH_PAD, _current_pad_seq_type);
+    generated_sequences[_current_pad_seq_type] = true;
+  } else {
+    Serial.println("i've already generated this pad sequence");
+    Serial.print(_current_pad_seq_type);
+  }
+
+  if (!generated_sequences[_current_lead_seq_type]) {
+    setSequenceByType(SYNTH_LEAD, _current_lead_seq_type);
+    generated_sequences[_current_lead_seq_type] = true;
+  } else {
+    Serial.println("i've already generated this lead sequence");
+    Serial.print(_current_lead_seq_type);
+  }
+
+  if (!generated_sequences[_current_drum_seq_type]) {
+    setDrumSequence(_current_drum_seq_type);
+    generated_sequences[_current_drum_seq_type] = true;
+  } else {
+    Serial.println("i've already generated this drum sequence");
+    Serial.print(_current_drum_seq_type);
+  }
 }
 void setRandomRythmData(int type) {
   for (int i = 0; i < MAX_STEP; i++) {
     all_sequences[type][i].rest = random(0, 100) < 20;
     all_sequences[type][i].accent = false;
-    all_sequences[type][i].glide = random(0, 100) < 80;
+    all_sequences[type][i].glide = random(0, 100) < 20;
     all_sequences[type][i].note = 0;
   };
+  all_sequences[type][0].rest = false;
 }
 
 void parseDigit() {
@@ -75,17 +95,45 @@ void setSequenceByType(int instrument, int type) {
 
   Serial.print("setSequenceByType: ");
   Serial.print(type);
-  Serial.print(" - ");
+  Serial.print(" - intrument:");
   Serial.println(instrument);
 
   // set the base sequence
   switch (type) {
     // Transform digits to the current scale, this is also the base sequence.
-    case 1:
-      // this has been set, no need to do anything.
+    case 24:
+      // Basic pad
+      for (int i = 0; i < MAX_STEP; i++) {
+        all_sequences[type][i].rest = true;
+        all_sequences[type][i].accent = false;
+        all_sequences[type][i].glide = true;
+        all_sequences[type][i].note = SCALE_MINOR[digit[0]];
+      };
+      all_sequences[type][0].rest = false;
+      all_sequences[type][MAX_STEP - 1].glide = false;
+      break;
+    case 25:
+      // Basic pad
+      for (int i = 0; i < MAX_STEP; i++) {
+        all_sequences[type][i].rest = true;
+        all_sequences[type][i].accent = false;
+        all_sequences[type][i].glide = true;
+        all_sequences[type][i].note = SCALE_MINOR[digit[4]];
+      };
+      all_sequences[type][0].rest = false;
+      all_sequences[type][4].glide = false;
+      break;
+    case 3:
+      // Basic arp
+      for (int i = 0; i < MAX_STEP; i++) {
+        all_sequences[type][i].rest = false;
+        all_sequences[type][i].accent = false;
+        all_sequences[type][i].glide = true;
+        all_sequences[type][i].note = SCALE_MINOR[digit[i]];
+      };
       break;
   }
-  printSequenceData(all_sequences[type]);
+  // printSequenceData(all_sequences[type]);
 
   // switch (type) {
   //   case 5:
@@ -127,7 +175,16 @@ void setDrumSequence(int type) {
   }
 
   all_sequences_drum[type][0].kick = true;
-  all_sequences_drum[type][3].kick = true;
+  all_sequences_drum[type][2].kick = true;
+
+  all_sequences_drum[type][1].hh = true;
+  all_sequences_drum[type][3].hh = true;
+
+  all_sequences_drum[type][4].kick = true;
+  all_sequences_drum[type][6].kick = true;
+
+  all_sequences_drum[type][5].hh = true;
+  all_sequences_drum[type][7].hh = true;
 }
 
 // Set the initual sound design for all 4 instruments at the beginning of a new song, based on a "Style"
