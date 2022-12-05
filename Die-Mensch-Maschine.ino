@@ -1,5 +1,7 @@
+
 #include <uClock.h>
 #include <MIDI.h>
+#include <Arduino.h>
 
 #include "AudioSampleKick.h"          // http://www.freesound.org/people/DWSD/sounds/171104/
 #include "AudioSampleSnare.h"         // http://www.freesound.org/people/KEVOY/sounds/82583/
@@ -14,72 +16,78 @@
 #include <SD.h>
 #include <SerialFlash.h>
 
-
 // GUItool: begin automatically generated code
-AudioSynthWaveform padOsc2;            //xy=428.55553817749023,1126.7777938842773
-AudioSynthWaveform padOsc3;            //xy=428.5555877685547,1191.22217130661
-AudioSynthWaveform padOsc4;            //xy=445.55555725097656,1262.111083984375
-AudioSynthWaveform padOsc1;            //xy=448.5556335449219,1067.333339691162
-AudioSynthWaveform leadOsc2;           //xy=503.5555419921875,1664.5556640625
-AudioSynthWaveform leadOsc1;           //xy=520,1577.5556640625
-AudioSynthWaveform bassOsc1;           //xy=599,827.333251953125
-AudioSynthWaveform bassOsc2;           //xy=601,884.333251953125
-AudioMixer4 padOscMix;                 //xy=640.3333435058594,1143.6666259765625
-AudioSynthWaveformSine padLFO2;        //xy=643,1348
-AudioSynthWaveformSine padLFO1;        //xy=646,1263
-AudioEffectMultiply leadMultiply;      //xy=677.2222518920898,1619.1111946105957
-AudioMixer4 bassOscMix;                //xy=785.5,856
-AudioSynthWaveformDc dc1;              //xy=787.5,974
-AudioEffectDigitalCombine padCombine;  //xy=820,1274
-AudioEffectEnvelope leadEnv;           //xy=886.5555419921875,1611.4444580078125
-AudioEffectEnvelope bassEnv;           //xy=950.6666259765625,872.6666259765625
-AudioEffectEnvelope bassFilterEnv;     //xy=969.5,970
-AudioPlayMemory soundKick;             //xy=1002,1393
-AudioPlayMemory soundHH;               //xy=1004,1493
-AudioPlayMemory soundSnare;            //xy=1005,1432
-AudioPlayMemory soundClap;             //xy=1011,1543
-AudioFilterStateVariable padFilter;    //xy=1036.5556640625,1200.333251953125
-AudioFilterStateVariable bassFilter;   //xy=1117,884
-AudioEffectEnvelope padEnv;            //xy=1222,1200
-AudioMixer4 drumMixer;                 //xy=1261,1444
-AudioAmplifier leadAmp;                //xy=1274.7777099609375,1607
-AudioAmplifier bassAmp;                //xy=1344.6666259765625,870.6666259765625
-AudioMixer4 mainMixer;                 //xy=1640.8890380859375,1214.22216796875
-AudioOutputI2SQuad i2s_quad1;          //xy=1849.6666259765625,1255.6666259765625
+AudioSynthWaveform padOsc2;            //xy=648.5555381774902,1107.7777938842773
+AudioSynthWaveform padOsc3;            //xy=648.5555877685547,1172.22217130661
+AudioSynthWaveform padOsc4;            //xy=665.5555572509766,1243.111083984375
+AudioSynthWaveform padOsc1;            //xy=668.5556335449219,1048.333339691162
+AudioSynthWaveform leadOsc1;           //xy=758,1555.5556640625
+AudioSynthWaveform leadOsc2;           //xy=761.5555419921875,1600.5556640625
+AudioSynthWaveform bassOsc1;           //xy=819,808.333251953125
+AudioSynthWaveform bassOsc2;           //xy=821,865.333251953125
+AudioMixer4 padOscMix;                 //xy=860.3333435058594,1124.6666259765625
+AudioSynthWaveformSine padLFO2;        //xy=863,1329
+AudioSynthWaveformSine padLFO1;        //xy=866,1244
+AudioSynthWaveformDc dc2;              //xy=921,1681
+AudioMixer4 leadMixer;                 //xy=937,1595
+AudioMixer4 bassOscMix;                //xy=1005.5,837
+AudioSynthWaveformDc dc1;              //xy=1007.5,955
+AudioEffectDigitalCombine padCombine;  //xy=1050,1276
+AudioEffectEnvelope leadFilterEnv;     //xy=1117,1680
+AudioEffectEnvelope leadEnv;           //xy=1119.5555419921875,1591.4444580078125
+AudioEffectEnvelope bassEnv;           //xy=1170.6666259765625,853.6666259765625
+AudioEffectEnvelope bassFilterEnv;     //xy=1189.5,951
+AudioPlayMemory soundKick;             //xy=1222,1374
+AudioPlayMemory soundHH;               //xy=1224,1474
+AudioPlayMemory soundSnare;            //xy=1225,1413
+AudioPlayMemory soundClap;             //xy=1231,1524
+AudioFilterStateVariable padFilter;    //xy=1256.5556640625,1181.333251953125
+AudioFilterStateVariable filter3;      //xy=1302,1591
+AudioFilterStateVariable bassFilter;   //xy=1337,865
+AudioEffectEnvelope padEnv;            //xy=1442,1181
+AudioMixer4 drumMixer;                 //xy=1481,1425
+AudioAmplifier leadAmp;                //xy=1494.7777099609375,1588
+AudioAmplifier bassAmp;                //xy=1564.6666259765625,851.6666259765625
+AudioMixer4 mainMixer;                 //xy=1860.8890380859375,1195.22216796875
+AudioOutputUSB usb1;                   //xy=1876,1268
+AudioOutputI2SQuad i2s_quad1;          //xy=2144.66650390625,1173.6666259765625
 AudioConnection patchCord1(padOsc2, 0, padOscMix, 1);
 AudioConnection patchCord2(padOsc3, 0, padOscMix, 2);
 AudioConnection patchCord3(padOsc4, 0, padOscMix, 3);
 AudioConnection patchCord4(padOsc1, 0, padOscMix, 0);
-AudioConnection patchCord5(leadOsc2, 0, leadMultiply, 1);
-AudioConnection patchCord6(leadOsc1, 0, leadMultiply, 0);
+AudioConnection patchCord5(leadOsc1, 0, leadMixer, 0);
+AudioConnection patchCord6(leadOsc2, 0, leadMixer, 1);
 AudioConnection patchCord7(bassOsc1, 0, bassOscMix, 0);
 AudioConnection patchCord8(bassOsc2, 0, bassOscMix, 1);
 AudioConnection patchCord9(padOscMix, 0, padFilter, 0);
 AudioConnection patchCord10(padLFO2, 0, padCombine, 1);
 AudioConnection patchCord11(padLFO1, 0, padCombine, 0);
-AudioConnection patchCord12(leadMultiply, leadEnv);
-AudioConnection patchCord13(bassOscMix, bassEnv);
-AudioConnection patchCord14(dc1, bassFilterEnv);
-AudioConnection patchCord15(padCombine, 0, padFilter, 1);
-AudioConnection patchCord16(leadEnv, leadAmp);
-AudioConnection patchCord17(bassEnv, 0, bassFilter, 0);
-AudioConnection patchCord18(bassFilterEnv, 0, bassFilter, 1);
-AudioConnection patchCord19(soundKick, 0, drumMixer, 0);
-AudioConnection patchCord20(soundHH, 0, drumMixer, 2);
-AudioConnection patchCord21(soundSnare, 0, drumMixer, 1);
-AudioConnection patchCord22(soundClap, 0, drumMixer, 3);
-AudioConnection patchCord23(padFilter, 0, padEnv, 0);
-AudioConnection patchCord24(bassFilter, 0, bassAmp, 0);
-AudioConnection patchCord25(padEnv, 0, mainMixer, 1);
-AudioConnection patchCord26(drumMixer, 0, mainMixer, 2);
-AudioConnection patchCord27(leadAmp, 0, mainMixer, 3);
-AudioConnection patchCord28(bassAmp, 0, mainMixer, 0);
-AudioConnection patchCord29(mainMixer, 0, i2s_quad1, 1);
-AudioConnection patchCord30(mainMixer, 0, i2s_quad1, 3);
-AudioConnection patchCord31(mainMixer, 0, i2s_quad1, 0);
-AudioConnection patchCord32(mainMixer, 0, i2s_quad1, 2);
-// AudioConnection          patchCord33(mainMixer, 0, usb1, 0);
-// AudioConnection          patchCord34(mainMixer, 0, usb1, 1);
+AudioConnection patchCord12(dc2, leadFilterEnv);
+AudioConnection patchCord13(leadMixer, leadEnv);
+AudioConnection patchCord14(bassOscMix, bassEnv);
+AudioConnection patchCord15(dc1, bassFilterEnv);
+AudioConnection patchCord16(padCombine, 0, padFilter, 1);
+AudioConnection patchCord17(leadFilterEnv, 0, filter3, 1);
+AudioConnection patchCord18(leadEnv, 0, filter3, 0);
+AudioConnection patchCord19(bassEnv, 0, bassFilter, 0);
+AudioConnection patchCord20(bassFilterEnv, 0, bassFilter, 1);
+AudioConnection patchCord21(soundKick, 0, drumMixer, 0);
+AudioConnection patchCord22(soundHH, 0, drumMixer, 2);
+AudioConnection patchCord23(soundSnare, 0, drumMixer, 1);
+AudioConnection patchCord24(soundClap, 0, drumMixer, 3);
+AudioConnection patchCord25(padFilter, 0, padEnv, 0);
+AudioConnection patchCord26(filter3, 0, leadAmp, 0);
+AudioConnection patchCord27(bassFilter, 0, bassAmp, 0);
+AudioConnection patchCord28(padEnv, 0, mainMixer, 1);
+AudioConnection patchCord29(drumMixer, 0, mainMixer, 2);
+AudioConnection patchCord30(leadAmp, 0, mainMixer, 3);
+AudioConnection patchCord31(leadAmp, 0, usb1, 1);
+AudioConnection patchCord32(bassAmp, 0, mainMixer, 0);
+AudioConnection patchCord33(bassAmp, 0, usb1, 0);
+AudioConnection patchCord34(mainMixer, 0, i2s_quad1, 1);
+AudioConnection patchCord35(mainMixer, 0, i2s_quad1, 3);
+AudioConnection patchCord36(mainMixer, 0, i2s_quad1, 0);
+AudioConnection patchCord37(mainMixer, 0, i2s_quad1, 2);
 // GUItool: end automatically generated code
 
 
@@ -93,6 +101,7 @@ typedef struct
   uint8_t note;
   bool accent;
   bool glide;
+  int sixtienth;
   bool rest;
 } SEQUENCER_STEP_DATA;
 
@@ -116,13 +125,13 @@ typedef struct
 #define DEBUG_PRINT_STEP false
 #define BASS_ROOT 33
 #define PAD_ROOT 57
-#define LEAD_ROOT 45
+#define LEAD_ROOT 81
 #define COL_MIN 0
 #define COL_MAX 1
 #define MAX_STEP 8
 #define MAX_BAR 4
 #define MAX_PHRASE 2
-#define MAX_SEQUENCE_TYPES 30
+#define MAX_SEQUENCE_TYPES 40
 #define MIDI_CHANNEL_SENT 1
 #define MIDI_CHANNEL_RECEIVE 2
 
@@ -165,8 +174,9 @@ int SCALE_MAJOR[8] = { 0, 2, 4, 5, 7, 9, 11 };
 float ROOT_NOTES[12] = { 130.8127827, 138.5913155, 146.832384, 155.5634919, 164.8137785, 174.6141157, 184.9972114, 195.997718, 207.6523488, 220, 233.0818808, 246.9416506 };
 
 // Place these from the spreadsheet https://docs.google.com/spreadsheets/d/1liqxYe1Ht9p84bwuuuADFOiAZGA8TLUPVn47AF2BULI/edit#gid=1079230721
+#define SONG_LENGTH 29
 double configData[30][6] = { { 50, 200, 120, 122, 124, 126 }, { 0, 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0, 0 }, { 2, 500, 0, 0.2, 0.4, 0.6 }, { 0, 1000, 300, 80, 80, 80 }, { 0, 1, 0, 0, 0, 0 }, { 1, 500, 433, 1, 1, 1 }, { 0, 500, 1, 1, 1, 1 }, { 2, 5000, 1000, 1002, 1004, 1006 }, { 0, 1000, 600, 80, 80, 80 }, { 0, 1, 0.8, 0, 0, 0 }, { 1, 5000, 1800, 1, 1, 1 }, { 0, 500, 0, 1, 1, 1 }, { 2, 500, 300, 302, 304, 306 }, { 0, 1000, 400, 80, 80, 80 }, { 0, 1, 1, 0, 0, 0 }, { 1, 500, 120, 1, 1, 1 }, { 0, 500, 120, 1, 1, 1 }, { 0.7, 5, 5, 4, 4, 4 }, { 0, 10000, 400, 3000, 3000, 3000 }, { 0.7, 5, 0.7, 4, 4, 4 }, { 0, 5000, 1001, 3000, 3000, 3000 }, { 0, 7, 0, 0, 0, 0 }, { 0, 7, 0, 0, 0, 0 }, { 0, 7, 0, 0, 0, 0 }, { 0, 7, 0, 0, 0, 0 }, { 0, 7, 0, 0, 0, 0 }, { 0, 7, 0, 0, 0, 0 }, { 0, 7, 0, 0, 0, 0 }, { 0, 7, 0, 0, 0, 0 } };
-int singleSongData[56][5] = { { 1, 4, 3, 24 }, { 1, 4, 3, 24 }, { 1, 4, 3, 25 }, { 1, 5, 3, 25 }, { 1, 5, 19, 24 }, { 1, 5, 20, 24 }, { 1, 5, 20, 24 }, { 1, 5, 21, 24 }, { 1, 6, 22, 24 }, { 1, 6, 22, 24 }, { 1, 6, 22, 24 }, { 1, 6, 22, 24 }, { 1, 6, 22, 24 }, { 1, 6, 22, 24 }, { 1, 6, 22, 24 }, { 1, 6, 22, 25 }, { 1, 7, 22, 26 }, { 1, 7, 22, 26 }, { 1, 7, 22, 26 }, { 1, 7, 22, 26 }, { 1, 7, 22, 26 }, { 1, 7, 22, 26 }, { 1, 7, 22, 26 }, { 12, 8, 26 }, { 1, 7, 22, 26 }, { 1, 7, 22, 26 }, { 1, 7, 22, 26 }, { 1, 7, 22, 26 }, { 1, 7, 22, 26 }, { 1, 7, 22, 26 }, { 1, 7, 22, 26 }, { 1, 7, 22, 26 }, { 1, 7, 22, 26 }, { 1, 7, 22, 26 }, { 1, 7, 22, 26 }, { 14, 4 }, { 14, 4 }, { 14, 4 }, { 14, 4 }, { 1, 9, 23, 27 }, { 1, 9, 23, 27 }, { 1, 9, 23, 27 }, { 1, 9, 23, 27 }, { 1, 9, 23, 27 }, { 1, 9, 23, 27 }, { 1, 9, 23, 27 } };
+int singleSongData[29][5] = { { 33, 0, 3 }, { 33, 0, 3 }, { 34, 0, 3 }, { 33, 0, 3 }, { 33, 29, 13 }, { 33, 29, 3 }, { 34, 29, 3 }, { 33, 29, 3 }, { 33, 29, 13 }, { 33, 29, 3 }, { 34, 29, 3 }, { 33, 29, 3 }, { 33, 29, 13 }, { 33, 29, 3 }, { 34, 29, 3 }, { 33, 29, 3 } };
 
 SEQUENCER_STEP_DATA all_sequences[MAX_SEQUENCE_TYPES][MAX_STEP];
 SEQUENCER_STEP_DATA base_sequence[MAX_STEP];
@@ -181,6 +191,17 @@ int _current_bass_seq_type;
 int _current_pad_seq_type;
 int _current_drum_seq_type;
 int _current_lead_seq_type;
+bool bass_is_setup = false;
+bool pad_is_setup = false;
+bool drum_is_setup = false;
+bool lead_is_setup = false;
+
+int lead_modulo = 6;
+double current_freq = 0;
+int target_freq = 5000;
+
+int target_time = 0;
+double target_steps = 0;
 
 MIDI_CREATE_INSTANCE(HardwareSerial, Serial1, MIDI);
 
@@ -188,27 +209,28 @@ void setup() {
   Serial.begin(9600);
 
   Serial.print("Setup!");
-  AudioMemory(48);
+  AudioMemory(92);
 
   // Inits the clock
   uClock.init();
 
   uClock.setClock16PPQNOutput(onStep16);
-  uClock.setTempo(110);
+  uClock.setTempo(90);
   makeSoundDesign(current_style);
 
   sgtl5000_1.enable();
   sgtl5000_1.volume(.5);
-  sgtl5000_2.enable();
 
+  sgtl5000_2.enable();
   sgtl5000_2.volume(.5);
+
   sgtl5000_1.setAddress(LOW);
   sgtl5000_2.setAddress(HIGH);
 
   setupBass();
-  setupPad();
+  // setupPad();
   setupLead();
-  setupDrum();
+  // setupDrum();
 
   uClock.start();
   usbMIDI.sendRealTime(usbMIDI.Start);
@@ -216,13 +238,17 @@ void setup() {
   usbMIDI.setHandleControlChange(myControlChange);
   usbMIDI.setHandleProgramChange(myProgramChange);
 
-  mainMixer.gain(0, .1);
-  mainMixer.gain(1, .1);
-  mainMixer.gain(2, .1);
-  mainMixer.gain(3, .1);
+  mainMixer.gain(0, .3);
+  mainMixer.gain(1, .3);
+  mainMixer.gain(2, .3);
+  mainMixer.gain(3, .3);
 }
+
 
 void loop() {
   // init the sequencer when everything is ready
   usbMIDI.read(MIDI_CHANNEL_RECEIVE);
+  // bassFilter.frequency(current_freq);
+  // current_freq += 0.01;
+  // Serial.println(current_freq);
 }
