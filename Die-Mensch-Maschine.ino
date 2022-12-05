@@ -1,5 +1,6 @@
 #include <uClock.h>
 #include <MIDI.h>
+
 #include "AudioSampleKick.h"          // http://www.freesound.org/people/DWSD/sounds/171104/
 #include "AudioSampleSnare.h"         // http://www.freesound.org/people/KEVOY/sounds/82583/
 #include "AudioSampleTomtom.h"        // http://www.freesound.org/people/zgump/sounds/86334/
@@ -12,6 +13,7 @@
 #include <SPI.h>
 #include <SD.h>
 #include <SerialFlash.h>
+
 
 // GUItool: begin automatically generated code
 AudioSynthWaveform padOsc2;            //xy=428.55553817749023,1126.7777938842773
@@ -42,9 +44,8 @@ AudioEffectEnvelope padEnv;            //xy=1222,1200
 AudioMixer4 drumMixer;                 //xy=1261,1444
 AudioAmplifier leadAmp;                //xy=1274.7777099609375,1607
 AudioAmplifier bassAmp;                //xy=1344.6666259765625,870.6666259765625
-AudioEffectFreeverb padReverb;         //xy=1384,1202
 AudioMixer4 mainMixer;                 //xy=1640.8890380859375,1214.22216796875
-AudioOutputI2SQuad i2s_quad1;          //xy=1864.6666259765625,1214.6666259765625
+AudioOutputI2SQuad i2s_quad1;          //xy=1849.6666259765625,1255.6666259765625
 AudioConnection patchCord1(padOsc2, 0, padOscMix, 1);
 AudioConnection patchCord2(padOsc3, 0, padOscMix, 2);
 AudioConnection patchCord3(padOsc4, 0, padOscMix, 3);
@@ -69,15 +70,18 @@ AudioConnection patchCord21(soundSnare, 0, drumMixer, 1);
 AudioConnection patchCord22(soundClap, 0, drumMixer, 3);
 AudioConnection patchCord23(padFilter, 0, padEnv, 0);
 AudioConnection patchCord24(bassFilter, 0, bassAmp, 0);
-AudioConnection patchCord25(padEnv, padReverb);
+AudioConnection patchCord25(padEnv, 0, mainMixer, 1);
 AudioConnection patchCord26(drumMixer, 0, mainMixer, 2);
 AudioConnection patchCord27(leadAmp, 0, mainMixer, 3);
 AudioConnection patchCord28(bassAmp, 0, mainMixer, 0);
-AudioConnection patchCord29(padReverb, 0, mainMixer, 1);
-AudioConnection patchCord30(mainMixer, 0, i2s_quad1, 1);
-AudioConnection patchCord31(mainMixer, 0, i2s_quad1, 3);
-AudioConnection patchCord32(mainMixer, 0, i2s_quad1, 0);
-AudioConnection patchCord33(mainMixer, 0, i2s_quad1, 2);
+AudioConnection patchCord29(mainMixer, 0, i2s_quad1, 1);
+AudioConnection patchCord30(mainMixer, 0, i2s_quad1, 3);
+AudioConnection patchCord31(mainMixer, 0, i2s_quad1, 0);
+AudioConnection patchCord32(mainMixer, 0, i2s_quad1, 2);
+// AudioConnection          patchCord33(mainMixer, 0, usb1, 0);
+// AudioConnection          patchCord34(mainMixer, 0, usb1, 1);
+// GUItool: end automatically generated code
+
 
 //AudioConnection patchCord10(drumsd, 0, i2s_quad2, 1);
 AudioControlSGTL5000 sgtl5000_1;  // xy=893,614
@@ -161,7 +165,7 @@ int SCALE_MAJOR[8] = { 0, 2, 4, 5, 7, 9, 11 };
 float ROOT_NOTES[12] = { 130.8127827, 138.5913155, 146.832384, 155.5634919, 164.8137785, 174.6141157, 184.9972114, 195.997718, 207.6523488, 220, 233.0818808, 246.9416506 };
 
 // Place these from the spreadsheet https://docs.google.com/spreadsheets/d/1liqxYe1Ht9p84bwuuuADFOiAZGA8TLUPVn47AF2BULI/edit#gid=1079230721
-double configData[30][6] = { { 50,200,120,122,124,126 },{ 0,0,0,0,0,0 },{ 0,0,0,0,0,0 },{ 2,500,0,0.2,0.4,0.6 },{ 0,1000,300,80,80,80 },{ 0,1,0,0,0,0 },{ 1,500,433,1,1,1 },{ 0,500,1,1,1,1 },{ 2,5000,1000,1002,1004,1006 },{ 0,1000,600,80,80,80 },{ 0,1,0.8,0,0,0 },{ 1,5000,1800,1,1,1 },{ 0,500,0,1,1,1 },{ 2,500,300,302,304,306 },{ 0,1000,400,80,80,80 },{ 0,1,1,0,0,0 },{ 1,500,120,1,1,1 },{ 0,500,120,1,1,1 },{ 0.7,5,5,4,4,4 },{ 0,10000,400,3000,3000,3000 },{ 0.7,5,0.7,4,4,4 },{ 0,5000,1001,3000,3000,3000 },{ 0,7,0,0,0,0 },{ 0,7,0,0,0,0 },{ 0,7,0,0,0,0 },{ 0,7,0,0,0,0 },{ 0,7,0,0,0,0 },{ 0,7,0,0,0,0 },{ 0,7,0,0,0,0 },{ 0,7,0,0,0,0 } };
+double configData[30][6] = { { 50, 200, 120, 122, 124, 126 }, { 0, 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0, 0 }, { 2, 500, 0, 0.2, 0.4, 0.6 }, { 0, 1000, 300, 80, 80, 80 }, { 0, 1, 0, 0, 0, 0 }, { 1, 500, 433, 1, 1, 1 }, { 0, 500, 1, 1, 1, 1 }, { 2, 5000, 1000, 1002, 1004, 1006 }, { 0, 1000, 600, 80, 80, 80 }, { 0, 1, 0.8, 0, 0, 0 }, { 1, 5000, 1800, 1, 1, 1 }, { 0, 500, 0, 1, 1, 1 }, { 2, 500, 300, 302, 304, 306 }, { 0, 1000, 400, 80, 80, 80 }, { 0, 1, 1, 0, 0, 0 }, { 1, 500, 120, 1, 1, 1 }, { 0, 500, 120, 1, 1, 1 }, { 0.7, 5, 5, 4, 4, 4 }, { 0, 10000, 400, 3000, 3000, 3000 }, { 0.7, 5, 0.7, 4, 4, 4 }, { 0, 5000, 1001, 3000, 3000, 3000 }, { 0, 7, 0, 0, 0, 0 }, { 0, 7, 0, 0, 0, 0 }, { 0, 7, 0, 0, 0, 0 }, { 0, 7, 0, 0, 0, 0 }, { 0, 7, 0, 0, 0, 0 }, { 0, 7, 0, 0, 0, 0 }, { 0, 7, 0, 0, 0, 0 }, { 0, 7, 0, 0, 0, 0 } };
 int singleSongData[56][5] = { { 1, 4, 3, 24 }, { 1, 4, 3, 24 }, { 1, 4, 3, 25 }, { 1, 5, 3, 25 }, { 1, 5, 19, 24 }, { 1, 5, 20, 24 }, { 1, 5, 20, 24 }, { 1, 5, 21, 24 }, { 1, 6, 22, 24 }, { 1, 6, 22, 24 }, { 1, 6, 22, 24 }, { 1, 6, 22, 24 }, { 1, 6, 22, 24 }, { 1, 6, 22, 24 }, { 1, 6, 22, 24 }, { 1, 6, 22, 25 }, { 1, 7, 22, 26 }, { 1, 7, 22, 26 }, { 1, 7, 22, 26 }, { 1, 7, 22, 26 }, { 1, 7, 22, 26 }, { 1, 7, 22, 26 }, { 1, 7, 22, 26 }, { 12, 8, 26 }, { 1, 7, 22, 26 }, { 1, 7, 22, 26 }, { 1, 7, 22, 26 }, { 1, 7, 22, 26 }, { 1, 7, 22, 26 }, { 1, 7, 22, 26 }, { 1, 7, 22, 26 }, { 1, 7, 22, 26 }, { 1, 7, 22, 26 }, { 1, 7, 22, 26 }, { 1, 7, 22, 26 }, { 14, 4 }, { 14, 4 }, { 14, 4 }, { 14, 4 }, { 1, 9, 23, 27 }, { 1, 9, 23, 27 }, { 1, 9, 23, 27 }, { 1, 9, 23, 27 }, { 1, 9, 23, 27 }, { 1, 9, 23, 27 }, { 1, 9, 23, 27 } };
 
 SEQUENCER_STEP_DATA all_sequences[MAX_SEQUENCE_TYPES][MAX_STEP];
@@ -190,7 +194,7 @@ void setup() {
   uClock.init();
 
   uClock.setClock16PPQNOutput(onStep16);
-  uClock.setTempo(120);
+  uClock.setTempo(110);
   makeSoundDesign(current_style);
 
   sgtl5000_1.enable();

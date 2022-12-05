@@ -110,7 +110,6 @@ void setSequenceByType(int instrument, int type) {
         all_sequences[type][i].note = SCALE_MINOR[digit[0]];
       };
       all_sequences[type][0].rest = false;
-      all_sequences[type][MAX_STEP - 1].glide = false;
       break;
     case 25:
       // Basic pad
@@ -118,10 +117,9 @@ void setSequenceByType(int instrument, int type) {
         all_sequences[type][i].rest = true;
         all_sequences[type][i].accent = false;
         all_sequences[type][i].glide = true;
-        all_sequences[type][i].note = SCALE_MINOR[digit[4]];
+        all_sequences[type][i].note = SCALE_MINOR[digit[2]];
       };
       all_sequences[type][0].rest = false;
-      all_sequences[type][4].glide = false;
       break;
     case 3:
       // Basic arp
@@ -176,15 +174,10 @@ void setDrumSequence(int type) {
 
   all_sequences_drum[type][0].kick = true;
   all_sequences_drum[type][2].kick = true;
-
-  all_sequences_drum[type][1].hh = true;
-  all_sequences_drum[type][3].hh = true;
-
+  // all_sequences_drum[type][2].snare = true;
+  // all_sequences_drum[type][6].snare = true;
   all_sequences_drum[type][4].kick = true;
   all_sequences_drum[type][6].kick = true;
-
-  all_sequences_drum[type][5].hh = true;
-  all_sequences_drum[type][7].hh = true;
 }
 
 // Set the initual sound design for all 4 instruments at the beginning of a new song, based on a "Style"

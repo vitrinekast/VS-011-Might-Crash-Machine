@@ -75,8 +75,8 @@ void playLeadNote(uint32_t tick) {
   // printStepInfo(SYNTH_LEAD, step);
   leadEnv.noteOff();
   leadEnv.noteOn();
-
-  int arp_note = all_sequences[_current_lead_seq_type][cur_step].note + ARP_MINOR[tick % 4];
+  // TODO: i do not think this is correct
+  int arp_note = step.note + ARP_MINOR[tick % 4];
   double frequency = getFrequency(LEAD_ROOT + arp_note);
   leadOsc1.frequency(frequency);
   leadOsc2.frequency(frequency);
@@ -113,9 +113,9 @@ void setupBass() {
 
 void setupPad() {
 
-  padOsc1.begin(0.3, 440, WAVEFORM_SQUARE);
-  padOsc2.begin(0.3, 440, WAVEFORM_SQUARE);
-  padOsc4.begin(0.3, 440, WAVEFORM_PULSE);
+  padOsc1.begin(1, 440, WAVEFORM_SQUARE);
+  padOsc2.begin(1, 440, WAVEFORM_SQUARE);
+  padOsc4.begin(1, 440, WAVEFORM_PULSE);
 
   padEnv.attack(configData[row_pad_attack][current_style]);
   padEnv.decay(configData[row_pad_decay][current_style]);
