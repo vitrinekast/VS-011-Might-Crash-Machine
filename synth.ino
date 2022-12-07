@@ -13,7 +13,7 @@ void playBassNote(uint32_t tick) {
   bool should_play = (tick % 2) == 0;
 
   if (should_play) {
-
+    
     SEQUENCER_STEP_DATA step = all_sequences[_current_bass_seq_type][current_step];
     printStepInfo(SYNTH_BASS, step, current_step);
 
@@ -33,7 +33,7 @@ void playBassNote(uint32_t tick) {
     }
 
     bassOsc1.frequency(frequency);
-    bassOsc2.frequency(frequency);
+    bassOsc2.frequency(frequency + bass_detune);
   }
 
   // }
@@ -61,34 +61,31 @@ void setupBass() {
   Serial.println("setting up the bass");
   updateSynthValuesByConfig();
 
-  bassEnv.releaseNoteOn(40);
-  bassFilterEnv.releaseNoteOn(4);
+  bassEnv.releaseNoteOn(20);
+  bassFilterEnv.releaseNoteOn(10);
 
   dc1.amplitude(1);
 
-  bassOsc1.begin(1, BASS_ROOT, WAVEFORM_SINE);
-  bassOsc2.begin(1, BASS_ROOT, WAVEFORM_SQUARE);
+  bassOsc1.begin(.5, BASS_ROOT, WAVEFORM_PULSE);
+  bassOsc2.begin(.5, BASS_ROOT, WAVEFORM_SINE);
 
-  // bassEnv.attack(configData[row_bass_attack][current_style]);
-  // bassEnv.decay(configData[row_bass_decay][current_style]);
-  // bassEnv.sustain(configData[row_bass_sustain][current_style]);
-  // bassEnv.release(configData[row_bass_release][current_style]);
+  bassEnv.attack(3);
+  bassEnv.decay(480);
+  bassEnv.sustain(0.2);
+  bassEnv.release(100);
+  bassOsc1.phase(10);
 
-  bassEnv.attack(300);
-  bassEnv.decay(3000);
-  bassEnv.sustain(0.1);
-  bassEnv.release(2000);
-
-  bassFilterEnv.attack(configData[row_bass_attack][current_style] / 2);
-  bassFilterEnv.decay(configData[row_bass_decay][current_style] / 2);
-  bassFilterEnv.sustain(configData[row_bass_sustain][current_style] / 2);
-  bassFilterEnv.release(configData[row_bass_release][current_style] / 2);
-
+  bassFilterEnv.attack(50);
+  bassFilterEnv.decay(50);
+  bassFilterEnv.sustain(.1);
+  bassFilterEnv.release(50);
+// 
+  // combine2.setCombineMode(AudioEffectDigitalCombine::AND);
 
   // bassEnv.hold(configData[row_bass_hold][current_style]);
 
-  bassFilter.frequency(configData[row_bass_filter_frequency][current_style]);
-  bassFilter.resonance(configData[row_bass_filter_resonance][current_style]);
+  bassFilter.frequency(600);
+  bassFilter.resonance(.7);
 
   bass_is_setup = true;
 }

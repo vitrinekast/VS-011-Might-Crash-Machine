@@ -29,24 +29,33 @@ void setupPad() {
 }
 
 void playPadNote(uint32_t tick) {
-  SEQUENCER_STEP_DATA step = all_sequences[_current_pad_seq_type][tick % MAX_STEP];
-  Serial.println("play a pad note");
-  
+
+  int current_step = (tick % 16) / 2;
+  bool should_play = (tick % 2) == 0;
+
+
+  SEQUENCER_STEP_DATA step = all_sequences[_current_pad_seq_type][current_step];
+
   int note = PAD_ROOT + all_sequences[_current_pad_seq_type][0].note;
 
-  // over bars, do other stuf with pad.
-  padOsc1.frequency(getFrequency(note));
-  padOsc2.frequency(getFrequency(note + 3));
-  padOsc3.frequency(getFrequency(note + 9));
-  padOsc4.frequency(getFrequency(note - 12));
+  if (should_play) {
 
-  if (!step.glide) {
-    padEnv.noteOff();
-  }
+    Serial.print("play pad note!");
 
-  if (!step.rest && !step.glide) {
-    padEnv.noteOn();
-  } else if (!step.rest) {
-    padEnv.noteOn();
+    // over bars, do other stuf with pad.
+    padOsc1.frequency(getFrequency(note));
+    padOsc2.frequency(getFrequency(note + 3));
+    padOsc3.frequency(getFrequency(note + 9));
+    padOsc4.frequency(getFrequency(note - 12));
+
+    if (!step.glide) {
+      padEnv.noteOff();
+    }
+
+    if (!step.rest && !step.glide) {
+      padEnv.noteOn();
+    } else if (!step.rest) {
+      padEnv.noteOn();
+    }
   }
 }

@@ -4,21 +4,12 @@ void parseParamChanges() {
   } else {
     lead_modulo = 6;
   }
-
-  if(_current_bass_seq_type == 3) {
-    changeEffectOverTime("frequency", )
-  }
 }
 
-void changeEffectOverTime() {
-  int target_time = getBeatDuration(90) * 16;
-}
 
 void makeSequences(int bar) {
   // calculate the sequences for each instrument based on the current bar
   // also, if effect values need to change over time, set them here
-  // Serial.print("MakeSequences: generate a needed sequence for bar ");
-  // Serial.println(bar);
 
   if (!digitIsParsed) {
     parseDigit();
@@ -32,62 +23,64 @@ void makeSequences(int bar) {
   _current_lead_seq_type = singleSongData[bar][SYNTH_LEAD];
   _current_pad_seq_type = singleSongData[bar][SYNTH_PAD];
 
-  parseParamChanges()
+  parseParamChanges();
 
 
 
-    // For each instrument, check if the sequence has been generated;
-    if (!generated_sequences[_current_bass_seq_type]) {
+  // For each instrument, check if the sequence has been generated;
+  if (!generated_sequences[_current_bass_seq_type]) {
     setSequenceByType(SYNTH_BASS, _current_bass_seq_type);
     generated_sequences[_current_bass_seq_type] = true;
   }
-
-
-  // if (!generated_sequences[_current_pad_seq_type]) {
-  //   setSequenceByType(SYNTH_PAD, _current_pad_seq_type);
-  //   generated_sequences[_current_pad_seq_type] = true;
-  // } else {
-  //   Serial.println("i've already generated this pad sequence");
-  //   Serial.print(_current_pad_seq_type);
-  // }
-
+  if (!generated_sequences[_current_pad_seq_type]) {
+    setSequenceByType(SYNTH_PAD, _current_pad_seq_type);
+    generated_sequences[_current_pad_seq_type] = true;
+  }
   if (!generated_sequences[_current_lead_seq_type]) {
     setSequenceByType(SYNTH_LEAD, _current_lead_seq_type);
     generated_sequences[_current_lead_seq_type] = true;
   }
+  if (!generated_sequences[_current_drum_seq_type]) {
+    setDrumSequence(_current_drum_seq_type);
+    generated_sequences[_current_drum_seq_type] = true;
+  }
 
-  // if (!generated_sequences[_current_drum_seq_type]) {
-  //   setDrumSequence(_current_drum_seq_type);
-  //   generated_sequences[_current_drum_seq_type] = true;
-  // } else {
-  //   Serial.println("i've already generated this drum sequence");
-  //   Serial.print(_current_drum_seq_type);
+  // Serial.println("I've created the following sequences:");
+  // for (int i = 0; i < MAX_SEQUENCE_TYPES; i++) {
+  //   if (generated_sequences[i]) {
+  //     Serial.println(i);
+  //   }
   // }
 }
+
+
 void setRandomRythmData(int type) {
   for (int i = 0; i < MAX_STEP; i++) {
     all_sequences[type][i].rest = random(0, 100) < 0;
     all_sequences[type][i].accent = false;
     all_sequences[type][i].glide = random(0, 100) < 0;
     all_sequences[type][i].note = 0;
-    all_sequences[type][i].sixtienth = 2;
+    all_sequences[type][i].root = MIDI_ROOT;
   };
   all_sequences[type][0].rest = false;
 }
 
+
+
 void parseDigit() {
+  Serial.println("Parse the digit");
   // TODO: make sure digit is 8 steps!;
-  int maxVal = 0;
-  int minVal = 100;
+  digit_lowest = 0;
+  digit_highest = 100;
 
   for (unsigned i = 0; i < (sizeof(digit) / sizeof(digit[0])); i++) {
-    maxVal = max(digit[i], maxVal);
-    minVal = min(digit[i], minVal);
+    digit_highest = max(digit[i], digit_highest);
+    digit_lowest = min(digit[i], digit_lowest);
   }
 
-  if (minVal > 0) {
+  if (digit_lowest > 0) {
     for (unsigned i = 0; i < (sizeof(digit) / sizeof(digit[0])); i++) {
-      digit[i] -= minVal;
+      digit[i] -= digit_lowest;
     }
   }
 }
@@ -97,9 +90,16 @@ void setBaseSequence() {
   // TODO: decide on root note and scale based on song selection..
 
   setRandomRythmData(1);
+
   for (int i = 0; i < MAX_STEP; i++) {
     all_sequences[1][i].note = SCALE_MINOR[digit[i]];
   };
+}
+
+void copySequence(int originalIndex, int targetIndex) {
+  for (int i = 0; i < MAX_STEP; i++) {
+    all_sequences[originalIndex][i] = all_sequences[targetIndex][i];
+  }
 }
 
 void setSequenceByType(int instrument, int type) {
@@ -107,98 +107,222 @@ void setSequenceByType(int instrument, int type) {
   Serial.print("setSequenceByType: ");
   Serial.print(type);
   Serial.print(" - intrument:");
-  Serial.println(instrument);
+  Serial.print(instrument);
 
   // set the base sequence
   switch (type) {
-    // Transform digits to the current scale, this is also the base sequence.
-    case 33:
-      // slow bass!
-      Serial.println("Generating a slow bass sequence");
+    case 0:
+      Serial.println("This sequence is empty - do not play anything");
       for (int i = 0; i < MAX_STEP; i++) {
         all_sequences[type][i].rest = true;
-        all_sequences[type][i].accent = false;
-        all_sequences[type][i].glide = true;
-        all_sequences[type][i].sixtienth = 2;
-        all_sequences[type][i].note = SCALE_MINOR[digit[0]];
-      };
-      all_sequences[type][0].rest = false;
-      all_sequences[type][0].glide = false;
+      }
+      break;
+    case 1:
+      Serial.println("This is the bass base sequence");
+      break;
 
-      break;
-    case 34:
-      // slow bass bit up!
-      Serial.println("Generating a slow bass sequence");
+    case 2:
+      Serial.println("1 iets lower");
+      copySequence(type, 1);
       for (int i = 0; i < MAX_STEP; i++) {
-        all_sequences[type][i].rest = true;
-        all_sequences[type][i].accent = false;
-        all_sequences[type][i].glide = true;
-        all_sequences[type][i].sixtienth = 2;
-        all_sequences[type][i].note = SCALE_MINOR[digit[0] + 3];
-      };
-      all_sequences[type][0].rest = false;
-      all_sequences[type][0].glide = false;
-
-      break;
-    case 24:
-      // Basic pad
-      for (int i = 0; i < MAX_STEP; i++) {
-        all_sequences[type][i].rest = true;
-        all_sequences[type][i].accent = false;
-        all_sequences[type][i].glide = true;
-        all_sequences[type][i].sixtienth = 2;
-        all_sequences[type][i].note = SCALE_MINOR[digit[0]];
-      };
-      all_sequences[type][0].rest = false;
-      break;
-    case 25:
-      // Basic pad
-      for (int i = 0; i < MAX_STEP; i++) {
-        all_sequences[type][i].rest = true;
-        all_sequences[type][i].accent = false;
-        all_sequences[type][i].glide = true;
-        all_sequences[type][i].sixtienth = 2;
-        all_sequences[type][i].note = SCALE_MINOR[digit[2]];
-      };
-      all_sequences[type][0].rest = false;
+        Serial.print(all_sequences[type][i].note);
+        Serial.print(" - ");
+        all_sequences[type][i].note -= ARP_MINOR[1];
+        Serial.println(all_sequences[type][i].note);
+      }
       break;
     case 3:
-      // Basic lead
+      Serial.println("1 nog ets lower");
+      copySequence(type, 1);
+      for (int i = 0; i < MAX_STEP; i++) {
+        all_sequences[type][i].note -= ARP_MINOR[2];
+      }
+      break;
+    case 4:
+      Serial.println("1 iets omhoog");
+      copySequence(type, 1);
+      for (int i = 0; i < MAX_STEP; i++) {
+        all_sequences[type][i].note += (12 - ARP_MINOR[2]);
+      }
+      break;
+
+    case 20:
+      Serial.println("Copy bass sequence but then a bit higer");
+      copySequence(type, 1);
+      for (int i = 0; i < MAX_STEP; i++) {
+        all_sequences[type][i].note += 24;
+      }
+      break;
+    case 22:
+      Serial.println("Copy bass sequence but then a bit higer");
+      copySequence(type, 1);
+      for (int i = 0; i < MAX_STEP; i++) {
+        all_sequences[type][i].note += (24 - ARP_MINOR[1]);
+      }
+      break;
+    case 23:
+      Serial.println("Copy bass sequence but then a bit higer");
+      copySequence(type, 1);
+      for (int i = 0; i < MAX_STEP; i++) {
+        all_sequences[type][i].note += (24 - ARP_MINOR[2]);
+      }
+      break;
+    case 24:
+      Serial.println("Copy bass sequence but then a bit higer");
+      copySequence(type, 1);
+      for (int i = 0; i < MAX_STEP; i++) {
+        all_sequences[type][i].note += (24 - ARP_MINOR[2]);
+      }
+      break;
+    case 30:
+      Serial.println("Create simple arp");
       for (int i = 0; i < MAX_STEP; i++) {
         all_sequences[type][i].rest = false;
         all_sequences[type][i].accent = false;
-        all_sequences[type][i].glide = true;
-        all_sequences[type][i].sixtienth = 3;
-        all_sequences[type][i].note = SCALE_MINOR[digit[i]];
+        all_sequences[type][i].glide = false;
+        all_sequences[type][i].note = SCALE_MINOR[digit[i]] + 24 - 3;
       };
       break;
-    case 13:
-      // Basic arp
-      Serial.println("making the arp");
+    case 32:
+      Serial.println("Create simple arp");
       for (int i = 0; i < MAX_STEP; i++) {
         all_sequences[type][i].rest = false;
         all_sequences[type][i].accent = false;
-        all_sequences[type][i].glide = true;
-        all_sequences[type][i].sixtienth = 1;
-        all_sequences[type][i].note = SCALE_MINOR[digit[i]];
+        all_sequences[type][i].glide = false;
+        all_sequences[type][i].note = SCALE_MINOR[digit[i]] + 24 - 7;
       };
-      printSequenceData(all_sequences[type]);
+      break;
+    case 33:
+      Serial.println("Create simple arp");
+      for (int i = 0; i < MAX_STEP; i++) {
+        all_sequences[type][i].rest = false;
+        all_sequences[type][i].accent = false;
+        all_sequences[type][i].glide = false;
+        all_sequences[type][i].note = SCALE_MINOR[digit[i]] + 24;
+      };
+      break;
+    case 40:
+      Serial.println("Create simple arp");
+      for (int i = 0; i < MAX_STEP; i++) {
+        all_sequences[type][i].rest = true;
+        all_sequences[type][i].accent = false;
+        all_sequences[type][i].glide = false;
+        all_sequences[type][i].note = SCALE_MINOR[digit[0]];
+      };
+      all_sequences[type][0].rest = false;
+      break;
+    case 41:
+      Serial.println("Create simple arp");
+      for (int i = 0; i < MAX_STEP; i++) {
+        all_sequences[type][i].rest = true;
+        all_sequences[type][i].accent = false;
+        all_sequences[type][i].glide = false;
+        all_sequences[type][i].note = SCALE_MINOR[digit[0]] + ARP_MINOR[1];
+      };
+      all_sequences[type][0].rest = false;
+      break;
+    case 42:
+      Serial.println("Create simple arp");
+      for (int i = 0; i < MAX_STEP; i++) {
+        all_sequences[type][i].rest = true;
+        all_sequences[type][i].accent = false;
+        all_sequences[type][i].glide = false;
+        all_sequences[type][i].note = SCALE_MINOR[digit[0]] + ARP_MINOR[2];
+      };
+      all_sequences[type][0].rest = false;
+      break;
+    case 43:
+      // yes.
+      Serial.println("Create simple arp");
+      for (int i = 0; i < MAX_STEP; i++) {
+        all_sequences[type][i].rest = true;
+        all_sequences[type][i].accent = false;
+        all_sequences[type][i].glide = false;
+        all_sequences[type][i].note = SCALE_MINOR[digit[0]] - 5;
+      };
+      all_sequences[type][0].rest = false;
+      break;
+    default:
+      Serial.print("Oh no couldnt generate!");
       break;
   }
+
   // printSequenceData(all_sequences[type]);
-
   // switch (type) {
-  //   case 5:
-  //     setEffectChanges("tempo", 5, 5);
+  //   // Transform digits to the current scale, this is also the base sequence.
+  //   case 33:
+  //     // slow bass!
+  //     Serial.println("Generating a slow bass sequence");
+  //     for (int i = 0; i < MAX_STEP; i++) {
+  //       all_sequences[type][i].rest = true;
+  //       all_sequences[type][i].accent = false;
+  //       all_sequences[type][i].glide = true;
+  //       all_sequences[type][i].sixtienth = 2;
+  //       all_sequences[type][i].note = SCALE_MINOR[digit[0]];
+  //     };
+  //     all_sequences[type][0].rest = false;
+  //     all_sequences[type][0].glide = false;
+
+  //     break;
+  //   case 34:
+  //     // slow bass bit up!
+  //     Serial.println("Generating a slow bass sequence");
+  //     for (int i = 0; i < MAX_STEP; i++) {
+  //       all_sequences[type][i].rest = true;
+  //       all_sequences[type][i].accent = false;
+  //       all_sequences[type][i].glide = true;
+  //       all_sequences[type][i].sixtienth = 2;
+  //       all_sequences[type][i].note = SCALE_MINOR[digit[0] + 3];
+  //     };
+  //     all_sequences[type][0].rest = false;
+  //     all_sequences[type][0].glide = false;
+
+  //     break;
+  //   case 24:
+  //     // Basic pad
+  //     for (int i = 0; i < MAX_STEP; i++) {
+  //       all_sequences[type][i].rest = true;
+  //       all_sequences[type][i].accent = false;
+  //       all_sequences[type][i].glide = true;
+  //       all_sequences[type][i].sixtienth = 2;
+  //       all_sequences[type][i].note = SCALE_MINOR[digit[0]];
+  //     };
+  //     all_sequences[type][0].rest = false;
+  //     break;
+  //   case 25:
+  //     // Basic pad
+  //     for (int i = 0; i < MAX_STEP; i++) {
+  //       all_sequences[type][i].rest = true;
+  //       all_sequences[type][i].accent = false;
+  //       all_sequences[type][i].glide = true;
+  //       all_sequences[type][i].sixtienth = 2;
+  //       all_sequences[type][i].note = SCALE_MINOR[digit[2]];
+  //     };
+  //     all_sequences[type][0].rest = false;
+  //     break;
+  //   case 3:
+  //     // Basic lead
+  //     for (int i = 0; i < MAX_STEP; i++) {
+  //       all_sequences[type][i].rest = false;
+  //       all_sequences[type][i].accent = false;
+  //       all_sequences[type][i].glide = true;
+  //       all_sequences[type][i].sixtienth = 3;
+  //       all_sequences[type][i].note = SCALE_MINOR[digit[i]];
+  //     };
+  //     break;
+  //   case 13:
+  //     // Basic arp
+  //     Serial.println("making the arp");
+  //     for (int i = 0; i < MAX_STEP; i++) {
+  //       all_sequences[type][i].rest = false;
+  //       all_sequences[type][i].accent = false;
+  //       all_sequences[type][i].glide = true;
+  //       all_sequences[type][i].sixtienth = 1;
+  //       all_sequences[type][i].note = SCALE_MINOR[digit[i]];
+  //     };
+  //     printSequenceData(all_sequences[type]);
+  //     break;
   // }
-}
-// double allEffects[];
-
-void setEffectChanges(char variable, int target_bar, double newValue) {
-  // allEffects[variable + "_new"] = newValue;
-}
-
-void processEffectChanges() {
 }
 
 void printSequenceData(SEQUENCER_STEP_DATA *sequence) {

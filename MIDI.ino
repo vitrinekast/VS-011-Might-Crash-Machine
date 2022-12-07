@@ -34,23 +34,33 @@ void myControlChange(byte channel, byte control, byte value) {
     bassEnv.decay(val);
   }
   if (control == 2) {
-    double val = mapfloat(value, 0, 127, 0, 1);
+    double val = mapfloat(value, 0, 127, 0, 500);
     Serial.println("adjusting towards");
     Serial.print(val);
-    bassEnv.sustain(val);
+    leadEnv.attack(val);
   }
   if (control == 3) {
     double val = mapfloat(value, 0, 127, 0, 5000);
     Serial.println("adjusting towards");
     Serial.print(val);
-    bassEnv.release(val);
+    leadEnv.decay(val);
   }
   if (control == 4) {
     double val = mapfloat(value, 0, 127, 0, 5000);
     Serial.println("adjusting towards");
     Serial.print(val);
-    bassEnv.hold(val);
+    leadEnv.hold(val);
   }
+
+  // filter env amount
+  if(control == 5) {
+    double val = mapfloat(value, 0, 127, 0, 1);
+    Serial.println("adjusting towards");
+    Serial.print(val);
+    dc2.amplitude(val);
+  }
+
+
 
 
   // filters
@@ -58,24 +68,68 @@ void myControlChange(byte channel, byte control, byte value) {
     double val = mapfloat(value, 0, 127, 0, 5000);
     Serial.println("adjusting towards");
     Serial.print(val);
-    bassFilter.frequency(val);
+    filter3.frequency(val);
   }
 
   if (control == 11) {
     double val = mapfloat(value, 0, 127, 0.5, 7);
     Serial.println("adjusting towards");
     Serial.print(val);
-    bassFilter.resonance(val);
+    filter3.resonance(val);
   }
 
 
 
   // effects
   if(control == 20) {
-    double val = mapfloat(value, 0, 127, 0, 5000);
+    int val = map(value, 0, 127, 0, 5);
     Serial.println("adjusting towards");
     Serial.print(val);
+    leadMixer.setCombineMode(val);
     // delay1.delay(0, val);
+    // reverb1.reverbTime(val);
+  }
+
+  if(control == 21) {
+    int val = map(value, 0, 127, 0, 8);
+    Serial.println("adjusting towards");
+    Serial.print(val);
+    leadOsc1.begin(val);
+    // delay1.delay(0, val);
+    // reverb1.reverbTime(val);
+  }
+
+  if(control == 22) {
+    int val = map(value, 0, 127, 0, 8);
+    Serial.println("adjusting towards");
+    Serial.print(val);
+    leadOsc2.begin(val);
+    // delay1.delay(0, val);
+    // reverb1.reverbTime(val);
+  }
+
+  // detunes
+  if(control == 30) {
+    bass_detune = value;
+    Serial.println("adjusting towards");
+    Serial.print(bass_detune);
+  }
+
+
+  // mixers
+  if(control == 50) {
+    bass_detune = value;
+    double val = mapfloat(value, 0, 127, 0, 1);
+    Serial.println("adjusting towards");
+    Serial.print(val);
+    
+  }
+  if(control == 51) {
+    bass_detune = value;
+    double val = mapfloat(value, 0, 127, 0, 1);
+    Serial.println("adjusting towards");
+    Serial.print(val);
+    
   }
 }
 
