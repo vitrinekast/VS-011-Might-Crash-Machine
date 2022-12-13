@@ -9,31 +9,24 @@ double getFrequency(int note) {
 int bass_modulo = 16;
 
 void playBassNote(uint32_t tick) {
-  int current_step = (tick % bass_modulo) / 2;
   bool should_play = (tick % 2) == 0;
 
   if (should_play) {
-    
-    SEQUENCER_STEP_DATA step = all_sequences[_current_bass_seq_type][current_step];
-    printStepInfo(SYNTH_BASS, step, current_step);
+
+    SEQUENCER_STEP_DATA step = sequence[(tick / 2) % MAX_STEP];
+    // printStepInfo(SYNTH_BASS, step, current_step);
 
     double frequency = getFrequency(BASS_ROOT + step.note);
-
-    // bassFilterEnv.noteOn();
-    if (!step.glide) {
-      // bassEnv.noteOff();
-    }
-
-    if (!step.rest && !step.glide) {
-      bassEnv.noteOn();
-      bassFilterEnv.noteOn();
-    } else if (!step.rest && !bassEnv.isActive()) {
+    if (!step.rest || play_all_bass_notes) {
       bassEnv.noteOn();
       bassFilterEnv.noteOn();
     }
-
+    if (step.rest && !play_all_bass_notes) {
+      bassEnv.noteOff();
+      bassFilterEnv.noteOff();
+    }
     bassOsc1.frequency(frequency);
-    bassOsc2.frequency(frequency + bass_detune);
+    bassOsc2.frequency(frequency + 10);
   }
 
   // }
@@ -59,10 +52,8 @@ void printStepInfo(int name, SEQUENCER_STEP_DATA step, int cur) {
 
 void setupBass() {
   Serial.println("setting up the bass");
-  updateSynthValuesByConfig();
-
-  bassEnv.releaseNoteOn(20);
-  bassFilterEnv.releaseNoteOn(10);
+  bassEnv.releaseNoteOn(0);
+  bassFilterEnv.releaseNoteOn(0);
 
   dc1.amplitude(1);
 
@@ -73,13 +64,13 @@ void setupBass() {
   bassEnv.decay(480);
   bassEnv.sustain(0.2);
   bassEnv.release(100);
-  bassOsc1.phase(10);
+  bassOsc1.phase(40);
 
   bassFilterEnv.attack(50);
   bassFilterEnv.decay(50);
   bassFilterEnv.sustain(.1);
   bassFilterEnv.release(50);
-// 
+  //
   // combine2.setCombineMode(AudioEffectDigitalCombine::AND);
 
   // bassEnv.hold(configData[row_bass_hold][current_style]);
@@ -88,18 +79,4 @@ void setupBass() {
   bassFilter.resonance(.7);
 
   bass_is_setup = true;
-}
-
-
-
-
-void printAllSynthValues() {
-}
-
-void updateSynthValuesByConfig() {
-  Serial.println("should update all synth values based on default values now");
-
-
-  // lfo.amplitude(configData[row_lfo_amp][current_style]);
-  // lfo.frequency(configData[row_lfo_freq][current_style]);
 }
