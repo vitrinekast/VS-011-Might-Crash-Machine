@@ -1,5 +1,5 @@
 void divideByThree(int* arr, int total) {
-
+  Serial.println("divideByThree?");
   arr[0] = floor(total / 3) - round(total / 20);
   arr[1] = floor(total / 3);
   arr[2] = floor(total / 3) + round(total / 5);
@@ -58,6 +58,7 @@ int findCloseScale(int target) {
 }
 
 void euclid(int length, int k, int chan, int offset) {
+  Serial.println("euclid?");
   int spaces = length - k;
   float per_pulse = (float)length / (float)k;
   float per_space = (float)length / (float)spaces;

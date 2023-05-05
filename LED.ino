@@ -1,77 +1,78 @@
-#define LED_PIN 12
-#define NUM_LEDS 28
-
 CRGB leds[NUM_LEDS];
 
-void setupLeds() {
-  Serial.println("setupLeds()");
-  FastLED.addLeds<WS2812, LED_PIN, GRB>(leds, NUM_LEDS);
-
-  showLEDStartSong();
-}
-
-void stopAllLeds() {
-  Serial.println("stopAllLeds()");
-  for (int i = 0; i < NUM_LEDS; i++) {
-    leds[i] = CRGB::Black;
+void setAllLeds(CRGB color)
+{
+  for (int i = 0; i < NUM_LEDS; i++)
+  {
+    leds[i] = color;
   }
   FastLED.show();
 }
 
-void showLEDDigitStep(int step, int count) {
-  Serial.println("showLEDDigitStep(int step)");
-  stopAllLeds();
-  int ledsPerStep = floor(NUM_LEDS / 9);
-  int startLed = floor(ledsPerStep * step);
-
-  int maxCount = ceil(NUM_LEDS / MAX_STEP);
-  int curCountLed = floor(maxCount * count);
-  for (int i = 0; i < min(curCountLed + maxCount, NUM_LEDS); i++) {
-    leds[i] = CRGB::Green;
-  }
-
-  for (int i = startLed; i < startLed + ledsPerStep; i++) {
-    if (i <= NUM_LEDS) {
-      leds[i] = CRGB::Blue;
-      Serial.println(i);
-    }
-  }
-
-
+void showLEDBit(int val, int time)
+{
+  leds[val] = CRGB::Blue;
   FastLED.show();
-  delay(200);
+  delay(500);
+  leds[val] = CRGB::Black;
+  FastLED.show();
 }
 
-void showAllLeds() {
-  Serial.println("showSeqStep(int step)");
-  // stopAllLeds();
-  // int ledsPerStep = floor(NUM_LEDS / count);
-  // int startLed = floor(ledsPerStep * step);
-
-  for (int i = 0; i < NUM_LEDS; i++) {
-
+void setLEDUntill(int max, float delayMultiplier)
+{
+  for (int i = NUM_LEDS; i > (NUM_LEDS - max); i--)
+  {
     leds[i] = CRGB::Blue;
-  }
 
+    // delay((NUM_LEDS - i) * delayMultiplier);
+  }
+  FastLED.show();
+  delay(500);
+
+  for (int i = (NUM_LEDS - max); i < NUM_LEDS; i++)
+  {
+    leds[i] = CRGB::Black;
+    // delay(i * delayMultiplier);
+  }
   FastLED.show();
 }
 
+void setupLeds()
+{
+  Serial.println("setupLeds()");
+  // FastLED.addLeds<WS2812, LED_PIN, GRB>(leds, NUM_LEDS);
+  FastLED.addLeds<NEOPIXEL, LED_PIN>(leds, NUM_LEDS);
 
-void showLEDStartSong() {
-  Serial.println("showLEDStartSong()");
-
-  stopAllLeds();
-
-  int followDistance = floor(NUM_LEDS / 3);
-
-  for (int i = 0; i < (NUM_LEDS + followDistance); i++) {
-    if (i < NUM_LEDS) {
-      leds[i] = CRGB(255, 255, 10 * i);
+  // Go once past all LEDS and blink 2x when turning the device on.
+  for (int i = 0; i < (NUM_LEDS + 4); i++)
+  {
+    if (i < NUM_LEDS)
+    {
+      leds[i] = CRGB::Blue;
     }
-    if (i - followDistance >= 0) {
-      leds[i - followDistance] = CRGB::Black;
+    if (i > 4)
+    {
+      leds[i - 4] = CRGB::Black;
     }
     FastLED.show();
-    delay(25);
+    delay(floor(i));
   }
+
+  setAllLeds(CRGB::Black);
+  delay(200);
+  setAllLeds(CRGB::Blue);
+  delay(200);
+  setAllLeds(CRGB::Black);
+  delay(200);
+  setAllLeds(CRGB::Blue);
+  delay(200);
+  setAllLeds(CRGB::Black);
+}
+
+void cleanupLeds()
+{
+  Serial.println("cleanupLeds()");
+  // FastLED.addLeds<WS2812, LED_PIN, GRB>(leds, NUM_LEDS);
+  FastLED.addLeds<NEOPIXEL, LED_PIN>(leds, NUM_LEDS);
+  setAllLeds(CRGB::Black);
 }

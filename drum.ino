@@ -3,56 +3,69 @@
 #define SAMPLE_HH 2
 #define SAMPLE_CLAP 3
 
-// #include "909/AudioSampleHandclp2.h"
-// #include "909/AudioSampleHh_open.h"
-// #include "909/AudioSampleHh.h"
-// #include "909/AudioSampleHhspecial.h"
-// #include "909/AudioSampleKick_1.h"
-// #include "909/AudioSampleKick_2.h"
-// #include "909/AudioSampleKick_3.h"
-// #include "909/AudioSampleRim.h"
-// #include "909/AudioSampleSnare.h"
-// #include "909/AudioSampleTom.h"
+int seq_kick[SONG_STATE_OUTRO + 1][8] = {
+    {0, 0, 0, 0, 4, 0, 0, 0},
+    {9, 0, 5, 0, 9, 0, 5, 0},
+    {9, 0, 9, 0, 9, 0, 9, 0},
+    {9, 0, 9, 0, 9, 0, 9, 0},
+    {0, 0, 0, 0, 4, 0, 0, 0},
+};
 
-void setupDrum() {
-  Serial.print("Should setup drum");
+int seq_snare[SONG_STATE_OUTRO + 1][8] = {
+    {0, 0, 5, 0, 9, 0, 5, 0},
+    {9, 9, 9, 9, 9, 9, 9, 9},
+    {0, 9, 0, 7, 0, 5, 0, 6},
+    {0, 0, 9, 0, 0, 0, 9, 0},
+    {9, 0, 5, 0, 9, 0, 5, 0}};
+
+int seq_hh[SONG_STATE_OUTRO + 1][8] = {
+    {0, 4, 0, 4, 0, 4, 4, 4},
+    {0, 9, 0, 4, 0, 9, 0, 4},
+    {8, 8, 8, 8, 8, 8, 8, 8},
+    {0, 9, 0, 4, 0, 9, 0, 4},
+    {0, 4, 0, 4, 0, 4, 4, 4},
+};
+
+void setupDrum()
+{
+  Serial.print("setupDrum()");
   drumMixer.gain(3, .8);
 }
 
-void playDrumStep(uint32_t tick) {
+bool playByChance(int chance)
+{
 
+  if (chance != 0)
+  {
+    if (random(9) < chance)
+    {
+
+      return true;
+    }
+  }
+
+  return false;
+}
+
+void playDrumStep(uint32_t tick)
+{
 
   if (tick % 2 == 0) {
-    int current_step = (abs(tick / 2) % MAX_STEP);
+  int current_step = ((tick/2) % (MAX_STEP));
 
-    // if (song_state == SONG_STATE_BUILDUP) {
-    //   soundSnare.play(AudioSampleSnare);
-    // }
-    // if (song_state == SONG_STATE_INTRO) {
+    if (playByChance(seq_kick[song_state][current_step]))
+    {
+      soundKick.play(AudioSampleKick_2);
+    }
 
-    switch (current_step) {
-      case 0:
-        soundKick.play(AudioSampleKick_2);
-        break;
-      case 2:
-        soundKick.play(AudioSampleKick_2);
-        break;
-      case 3:
-        soundSnare.play(AudioSampleSnare);
-        soundSnare.play(AudioSampleHh);
-        break;
-      case 4:
-        soundKick.play(AudioSampleKick_2);
-        soundSnare.play(AudioSampleSnare);
-        break;
-      case 6:
-        soundKick.play(AudioSampleKick_2);
-        soundSnare.play(AudioSampleHh);
-        break;
-      case 7:
-        soundSnare.play(AudioSampleHh);
-        break;
-        // }
+    if (playByChance(seq_snare[song_state][current_step]))
+    {
+      soundSnare.play(AudioSampleSnare);
+    }
+
+    if (playByChance(seq_hh[song_state][current_step]))
+    {
+      soundSnare.play(AudioSampleHh);
     }
   }
 }

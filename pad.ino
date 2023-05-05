@@ -1,5 +1,5 @@
 void setupPad() {
-  Serial.println("setup paad");
+  Serial.println("setupPad");
   padOsc1.begin(1, 440, WAVEFORM_SQUARE);
   padOsc2.begin(1, 440, WAVEFORM_SQUARE);
   padOsc3.begin(1, 440, WAVEFORM_SQUARE);
@@ -34,7 +34,7 @@ void playPadNote(uint32_t tick) {
 
   SEQUENCER_STEP_DATA step = sequence[current_step];
   if (should_play) {
-
+    // Serial.println("playPadNote");
     // over bars, do other stuf with pad.
     padOsc1.frequency(getFrequency(MIDI_ROOT + step.note));
     padOsc2.frequency(getFrequency(MIDI_ROOT + step.note + 3));

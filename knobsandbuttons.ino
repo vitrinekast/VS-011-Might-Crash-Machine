@@ -3,14 +3,6 @@ float mapfloat(long x, long in_min, long in_max, long out_min, long out_max) {
 }
 
 int prevDigit = -1;
-
-char keymap[3][3] = {
-  { 7, 4, 1 },
-  { 8, 5, 2 },
-  { 9, 6, 3 }
-};
-
-
 #define POT_OFFSET 50
 int speed_prev_val = -100;
 int env1_prev_val = -100;
@@ -26,7 +18,16 @@ int switch_drum_state_prev_val = -1;
 int switch_bass_state_prev_val = -1;
 int switch_song_state_prev_val = -1;
 
+void setupSwitches() {
+  Serial.println("TODO: setup the switches to the pins");
+  // pinMode(SWITCH_ON_OFF_PIN, INPUT_PULLUP);
+  // pinMode(SWITCH_DRUM_STATE_PIN, INPUT_PULLUP);
+  // pinMode(SWITCH_BASS_STATE_PIN, INPUT_PULLUP);
+  // pinMode(SWITCH_SONG_STATE_PIN, INPUT_PULLUP);
+}
+
 void readSwitches() {
+  
   int switch_on_off_val = digitalRead(SWITCH_ON_OFF_PIN);
   int switch_drum_state_val = digitalRead(SWITCH_DRUM_STATE_PIN);
   int switch_bass_state_val = digitalRead(SWITCH_BASS_STATE_PIN);
@@ -187,7 +188,6 @@ void readPotentiometers() {
       divideByThree(euclid_event_count, val);
       euclid(euclid_pattern_length[0], euclid_event_count[0], 0, 0);
       euclid(euclid_pattern_length[1], euclid_event_count[1], 1, 0);
-      euclid(euclid_pattern_length[2], euclid_event_count[2], 2, 1);
     }
 
 
@@ -203,37 +203,28 @@ void readPotentiometers() {
   }
 }
 
-void readKeypadEvents() {
-  int newDigit = -1;
+// Function to read the keypad matrix and return the key pressed
+int getKey() {
+  // Scan the rows and columns of the keypad matrix for a key press
+  for (int row = 0; row < 3; row++) {
+    // Set the current row pin to low
+    digitalWrite(rowPins[row], LOW);
 
-  for (int col = KEYPAD_Y_1; col < KEYPAD_Y_3 + 1; col++) {
-    digitalWrite(KEYPAD_Y_1, LOW);
-    digitalWrite(KEYPAD_Y_2, LOW);
-    digitalWrite(KEYPAD_Y_3, LOW);
-    digitalWrite(col, HIGH);
+    // Check each column to see if a key is pressed
+    for (int col = 0; col < 3; col++) {
+      if (digitalRead(colPins[col]) == LOW) {
+        // Reset the current row pin to high
+        digitalWrite(rowPins[row], HIGH);
 
-    if (digitalRead(KEYPAD_X_1) == HIGH) {
-      newDigit = keymap[col - 3][0];
-    } else if (digitalRead(KEYPAD_X_2) == HIGH) {
-      newDigit = keymap[col - 3][1];
-    } else if (digitalRead(KEYPAD_X_3) == HIGH) {
-      newDigit = keymap[col - 3][2];
-    };
-    digitalWrite(col, LOW);
-  }
-
-  if (newDigit != -1 && (newDigit != prevDigit)) {
-    lastDebounceTime = millis();
-
-    for (int i = 0; i < MAX_STEP; i++) {
-      if (digit[i] == -1) {
-        // Serial.println("Set digit at step");
-        digit[i] = newDigit;
-        showLEDDigitStep(newDigit, i);
-        Serial.print(i);
-        break;
+        // Return the key pressed
+        return keys[row][col];
       }
     }
+
+    // Reset the current row pin to high
+    digitalWrite(rowPins[row], HIGH);
   }
-  prevDigit = newDigit;
+
+  // Return NO_KEY if no key is pressed
+  return -1;
 }
