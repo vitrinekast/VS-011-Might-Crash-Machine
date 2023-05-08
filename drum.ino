@@ -29,7 +29,10 @@ int seq_hh[SONG_STATE_OUTRO + 1][8] = {
 void setupDrum()
 {
   Serial.print("setupDrum()");
-  drumMixer.gain(3, .8);
+  drumMixer.gain(1, .2);
+  drumMixer.gain(2, .2);
+  drumMixer.gain(3, .2);
+  drumMixer.gain(4, .2);
 }
 
 bool playByChance(int chance)
@@ -49,23 +52,38 @@ bool playByChance(int chance)
 
 void playDrumStep(uint32_t tick)
 {
+int part = 2;
+int current_step = (tick/part) % 16;
+int part_step = tick % 16;
+bool isFirst = tick%part == 0;
+Serial.print(current_step);
 
-  if (tick % 2 == 0) {
-  int current_step = ((tick/2) % (MAX_STEP));
-
-    if (playByChance(seq_kick[song_state][current_step]))
+    if (isFirst && drum_eucl_sequence[0][current_step]> 0)
     {
-      soundKick.play(AudioSampleKick_2);
+      // soundKick.play(AudioSampleKick_2);
+      soundSynth.frequency(20);
+      soundSynth.noteOn();
+    }
+    if (drum_eucl_sequence[1][current_step]> 0 && random(10) > 3)
+    {
+      soundSnare.play(AudioSampleRim);
     }
 
-    if (playByChance(seq_snare[song_state][current_step]))
+    if (isFirst && drum_eucl_sequence[2][current_step]> 0)
     {
       soundSnare.play(AudioSampleSnare);
     }
 
-    if (playByChance(seq_hh[song_state][current_step]))
+    if (drum_eucl_sequence[3][current_step]> 0 && random(10) > 3)
     {
-      soundSnare.play(AudioSampleHh);
+      soundHH.play(AudioSampleTom);
     }
-  }
+
+    if (drum_eucl_sequence[4][current_step]> 0 && random(10) > 3)
+    {
+      soundClap.play(AudioSampleHh);
+      drumMixer.gain(4, 10/(tick%part));
+    }
+  // }
+// 
 }

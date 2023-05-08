@@ -41,7 +41,7 @@ void setBaseSequence()
   for (int i = 0; i < MAX_STEP; i++)
   {
     // TODO: translate towards closest note within minor scale;
-    sequence[i].rest = random(0, 100) < 20;
+    sequence[i].rest = random(0, 100) < 60;
     sequence[i].note = SCALE_MINOR[digit[i]];
   };
 }
@@ -80,7 +80,7 @@ void updateSongState(int state)
   Serial.print(song_state);
 
   euclid_pattern_length_changed = true;
-
+  setDrumEuclid();
   switch (state)
   {
   case SONG_STATE_BUILDUP:
@@ -151,10 +151,10 @@ void checkSongState(int bar)
   }
 }
 
-void onStep16(uint32_t tick)
+void onStep(uint32_t tick)
 {
 
-  playLeadNote(tick);
+  // playLeadNote(tick);
   updateEuclidIndex();
   // if current step = 0, calculate the sequences to be taken for all 4 instruments -> makeSequences();
 
@@ -171,7 +171,7 @@ void onStep16(uint32_t tick)
   //   // parseSongState();
   //   Serial.println("at beginning of a bar");
   // }
-  playPadNote(tick);
+  // playPadNote(tick);
   playBassNote(tick);
   playDrumStep(tick);
 }
